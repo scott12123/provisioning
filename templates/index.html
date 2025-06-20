@@ -40,6 +40,13 @@
         </div>
     </div>
 
+    <div class="row g-3 mt-3">
+        <div class="col-12">
+            <label for="csv_input" class="form-label">CSV Config (one per line)</label>
+            <textarea id="csv_input" class="form-control" rows="4" placeholder="name,ip,bridge,frequency"></textarea>
+        </div>
+    </div>
+
     <pre id="output" class="bg-dark text-white mt-4 p-3" style="height: 300px; overflow-y: auto;"></pre>
 </div>
 
@@ -50,6 +57,7 @@
     const siteTypeSelect = document.getElementById('site_type');
     const configTypeSelect = document.getElementById('config_type');
     const scriptSelect = document.getElementById('script');
+    const csvInput = document.getElementById('csv_input');
 
     function resetSelect(sel) {
         sel.innerHTML = '';
@@ -135,13 +143,20 @@
         const st = siteTypeSelect.value;
         const ct = configTypeSelect.value;
         const s = scriptSelect.value;
+        const csvLines = csvInput.value.split('\n')
+            .map(l => l.trim())
+            .filter(l => l)
+            .map(l => l.split(',')
+                .map(f => f.trim().replace(/\s+/g, '_'))
+                .join(','));
         document.getElementById('output').textContent = '';
         socket.emit('run_script', {
             manufacturer: m,
             device: d,
             site_type: st,
             config_type: ct,
-            script: s
+            script: s,
+            csv: csvLines
         });
     });
 

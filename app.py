@@ -37,6 +37,33 @@ def run_command(cmd, sid):
     socketio.emit('finished', {'returncode': returncode}, to=sid)
 
 
+def run_commands(script, params_list, sid):
+    """Run a script for each parameter entry in params_list."""
+    last_rc = 0
+    for params in params_list:
+        cmd = f"{script} {params}"
+        socketio.emit('output', f"\n> {cmd}\n", to=sid)
+        try:
+            proc = subprocess.Popen(
+                cmd,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+            )
+            for line in proc.stdout:
+                socketio.emit('output', line, to=sid)
+            last_rc = proc.wait()
+        except Exception as exc:
+            socketio.emit('output', f"Error: {exc}\n", to=sid)
+            last_rc = -1
+            break
+        if last_rc != 0:
+            break
+
+    socketio.emit('finished', {'returncode': last_rc}, to=sid)
+
+
 @app.route('/')
 def index():
     devices = get_devices()
@@ -53,6 +80,9 @@ def run_script(data):
     site_type = data.get('site_type')
     config_type = data.get('config_type')
     script = data.get('script')
+    csv_lines = data.get('csv') or []
+    if not isinstance(csv_lines, list):
+        csv_lines = []
 
     if not all([manufacturer, device, site_type, config_type, script]):
         socketio.emit('output', 'Missing selection\n', to=sid)
@@ -78,9 +108,10 @@ def run_script(data):
         to=sid,
     )
 
-    # Start command execution in the background. run_command will emit
-    # output lines and the final 'finished' event when complete.
-    socketio.start_background_task(run_command, script, sid)
+    if csv_lines:
+        socketio.start_background_task(run_commands, script, csv_lines, sid)
+    else:
+        socketio.start_background_task(run_command, script, sid)
 
 
 if __name__ == '__main__':
