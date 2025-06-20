@@ -4,8 +4,20 @@
     "Metal": ["script1"]
   },
   "Cambium": {
-    "3000L": ["script1", "script2"],
-    "XV2-22H": ["script1", "script2"],
-    "XV2-2T0": ["script1", "script2"]
+    "3000L": {
+      "nbn": ["sector", "omni"],
+      "rcp": ["sector", "omni"]
+    },
+    "XV2-22H": {
+      "provisioning": ["script1", "script2"],
+      "rcp": ["script3"]
+
+    },
+    "XV2-2T0": {
+      "provisioning": ["script1", "script2"]
+    },
+    "Force300-16": {
+      "nbn": ["P2P", "Remote"]
+    }
   }
 }
