@@ -1,0 +1,128 @@
+#CHANGELOG
+
+#V1.1
+Save logging to disk instead of memory for warning, info, error
+
+#V1.0
+Created base config 
+
+######## Mikrotik 450Gx4 #########
+#Version: 1.1
+#Date: 10/07/2023
+##### Add Logging #####
+/system logging set action=disk numbers=0;
+/system logging set action=disk numbers=1;
+/system logging set action=disk numbers=2;
+
+##### Remove Default Config ######
+
+/ip pool remove 0
+/ip dhcp-server remove 0
+/ip dhcp-client remove 0
+/ip dhcp-server network remove 0
+/ip dns set allow-remote-requests=no
+/ip dns static remove 0
+
+
+/ip firewall filter
+remove 11
+remove 10
+remove 9
+remove 8
+remove 7
+remove 6
+remove 5
+remove 4
+remove 3
+remove 2
+remove 1
+
+/ip firewall nat remove 0
+
+##### New Config ######
+
+#Create Bridges
+/interface bridge
+add name=bridge-vlan500
+add name=bridge-vlan501
+add name=bridge-vlan521
+add name=bridge-vlan522
+
+#Create VLAN Interfaces
+/interface vlan
+add interface=ether1 name=eth1-vlan500 vlan-id=500
+add interface=ether1 name=eth1-vlan501 vlan-id=501
+add interface=ether1 name=eth1-vlan521 vlan-id=521
+add interface=ether1 name=eth1-vlan522 vlan-id=522
+add interface=ether5 name=eth5-vlan500 vlan-id=500
+add interface=ether5 name=eth5-vlan501 vlan-id=501
+
+#Add Management IP
+/ip address
+add address=10.255.0.5/24 comment=defconf interface=bridge-vlan500 network=10.255.0.0
+
+/interface bridge port
+#VLAN 500
+add bridge=bridge-vlan500 interface=eth1-vlan500
+add bridge=bridge-vlan500 interface=eth5-vlan500
+
+#Hard code MAC
+/interface ethernet
+set [ find default-name=ether1 ] mac-address=6C:3B:6B:53:F0:D5
+set [ find default-name=ether2 ] mac-address=6C:3B:6B:53:F0:D6
+set [ find default-name=ether3 ] mac-address=6C:3B:6B:53:F0:D7
+set [ find default-name=ether4 ] mac-address=6C:3B:6B:53:F0:D8
+set [ find default-name=ether5 ] mac-address=6C:3B:6B:53:F0:D9
+
+
+#Mark: Now we need to reconnect using VLAN 500 to continue the remaining config
+#Mark: But renaming the MAC force a disconnection, so good time to change to VLAN anyway
+
+#Remove Default Bridge & IP
+/interface bridge port
+remove 0
+remove 1
+remove 2
+remove 3
+
+/interface bridge remove bridge
+
+/ip address remove 0
+
+#Continue creating the remaining bridges
+/interface bridge port
+#VLAN 500
+add bridge=bridge-vlan500 interface=ether4
+#VLAN 501
+add bridge=bridge-vlan501 interface=eth1-vlan501
+add bridge=bridge-vlan501 interface=eth5-vlan501
+#VLAN 521
+add bridge=bridge-vlan521 interface=ether1 hw=no
+add bridge=bridge-vlan521 interface=ether2 hw=no
+add bridge=bridge-vlan521 interface=eth1-vlan521
+#VLAN 522
+add bridge=bridge-vlan522 interface=eth1-vlan522
+add bridge=bridge-vlan522 interface=ether3 hw=no
+
+/ip dns set servers=8.8.8.8,8.8.4.4
+/ip route add distance=1 gateway=10.255.0.1
+
+/ip service
+set telnet disabled=yes
+set ftp disabled=yes
+set www-ssl disabled=no
+set www disabled=no
+set ssh address=10.255.0.0/24
+set api disabled=yes
+set winbox address=10.255.0.0/24
+set api-ssl disabled=yes
+
+/system clock set time-zone-name=Australia/Melbourne
+/user set admin password=yph546DKDUmsyCEJ
+/system identity set name=450Gx4
+/system ntp client set enabled=yes primary-ntp=10.255.0.1 secondary-ntp=139.180.160.82
+/system ntp client set enabled=yes server=10.255.0.1,139.180.160.82
+/system routerboard settings set protected-routerboot=disabled
+/tool mac-server set allowed-interface-list=all
+/tool mac-server mac-winbox set allowed-interface-list=all
+/interface ethernet poe set ether5 poe-out forced-on
