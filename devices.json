@@ -23,21 +23,33 @@
       }
     },
     "XV2-22H": {
-      "provisioning": {
-        "default": ["script1", "script2"]
+      "nbn": {
+        "sector": ["sector"],
+        "omni": ["omni"]
       },
       "rcp": {
-        "default": ["script3"]
+        "sector": ["sector"],
+        "omni": ["omni"]
       }
     },
     "XV2-2T0": {
-      "provisioning": {
-        "default": ["script1", "script2"]
+      "nbn": {
+        "sector": ["sector"],
+        "omni": ["omni"]
+      },
+      "rcp": {
+        "sector": ["sector"],
+        "omni": ["omni"]
       }
     },
     "Force300-16": {
       "nbn": {
-        "default": ["P2P", "Remote"]
+        "P2P": ["sector"],
+        "Remote": ["omni"]
+      },
+      "rcp": {
+        "P2P": ["sector"],
+        "Remote": ["omni"]
       }
     }
   }
