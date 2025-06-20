@@ -14,12 +14,12 @@
   "Cambium": {
     "3000L": {
       "nbn": {
-        "sector": ["sector"],
-        "omni": ["omni"]
+        "sector": ["cambium/nbn/3000l.py"],
+        "omni": ["cambium/nbn/3000l.py"]
       },
       "rcp": {
-        "sector": ["sector"],
-        "omni": ["omni"]
+        "sector": ["cambium/rcp/3000l.py"],
+        "omni": ["cambium/rcp/3000l.py"]
       }
     },
     "XV2-22H": {
