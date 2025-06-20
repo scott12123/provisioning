@@ -58,6 +58,7 @@
     const configTypeSelect = document.getElementById('config_type');
     const scriptSelect = document.getElementById('script');
     const csvInput = document.getElementById('csv_input');
+    const outputEl = document.getElementById('output');
 
     function resetSelect(sel) {
         sel.innerHTML = '';
@@ -149,7 +150,7 @@
             .map(l => l.split(',')
                 .map(f => f.trim().replace(/\s+/g, '_'))
                 .join(','));
-        document.getElementById('output').textContent = '';
+        outputEl.textContent = '';
         socket.emit('run_script', {
             manufacturer: m,
             device: d,
@@ -161,11 +162,13 @@
     });
 
     socket.on('output', line => {
-        document.getElementById('output').textContent += line;
+        outputEl.textContent += line;
+        outputEl.scrollTop = outputEl.scrollHeight;
     });
 
     socket.on('finished', data => {
-        document.getElementById('output').textContent += '\nProcess exited with ' + data.returncode;
+        outputEl.textContent += '\nProcess exited with ' + data.returncode;
+        outputEl.scrollTop = outputEl.scrollHeight;
     });
     </script>
 </body>
