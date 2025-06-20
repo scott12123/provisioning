@@ -66,8 +66,15 @@ def run_commands(script, params_list, sid):
 
 @app.route('/')
 def index():
+    """Render the home page."""
+    return render_template('index.html')
+
+
+@app.route('/device-config')
+def device_config():
+    """Display the device configuration page."""
     devices = get_devices()
-    return render_template('index.html', devices=devices)
+    return render_template('device_config.html', devices=devices)
 
 
 @socketio.on('run_script')
