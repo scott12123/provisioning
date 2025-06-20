@@ -51,41 +51,6 @@
 <div class="container py-5">
     <div class="card p-4">
         <h1 class="mb-4">Device Reset Tool</h1>
-        <div class="row g-3 align-items-end">
-        <div class="col-md-2">
-            <label for="manufacturer" class="form-label">Manufacturer</label>
-            <select id="manufacturer" class="form-select">
-                <option value="">Select...</option>
-                {% for m in devices.keys() %}
-                <option value="{{ m }}">{{ m }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label for="device" class="form-label">Device</label>
-            <select id="device" class="form-select"></select>
-        </div>
-        <div class="col-md-2">
-            <label for="site_type" class="form-label">Site Type</label>
-            <select id="site_type" class="form-select"></select>
-        </div>
-        <div class="col-md-2">
-            <label for="config_type" class="form-label">Configuration Type</label>
-            <select id="config_type" class="form-select"></select>
-        </div>
-        <div class="col-md-2">
-            <button id="run" class="btn btn-primary w-100">Run</button>
-        </div>
-    </div>
-
-    <div class="row g-3 mt-3">
-        <div class="col-12">
-            <h5>Device Config (CSV, one device per line)</h5>
-            <label id="csv_label" for="csv_input" class="form-label">Device Config (CSV, one device per line)</label>
-            <textarea id="csv_input" class="form-control" rows="4"></textarea>
-        </div>
-    </div>
-
     <pre id="output" class="bg-dark text-white mt-4 p-3" style="height: 600px; overflow-y: auto;"></pre>
     </div>
 </div>
