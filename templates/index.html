@@ -10,24 +10,32 @@
 <div class="container py-5">
     <h1 class="mb-4">Run Device Configuration</h1>
     <div class="row g-3 align-items-end">
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label for="manufacturer" class="form-label">Manufacturer</label>
             <select id="manufacturer" class="form-select">
                 <option value="">Select...</option>
-                {% for m in scripts.keys() %}
+                {% for m in devices.keys() %}
                 <option value="{{ m }}">{{ m }}</option>
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label for="device" class="form-label">Device</label>
             <select id="device" class="form-select"></select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
+            <label for="site_type" class="form-label">Site Type</label>
+            <select id="site_type" class="form-select"></select>
+        </div>
+        <div class="col-md-2">
+            <label for="config_type" class="form-label">Configuration Type</label>
+            <select id="config_type" class="form-select"></select>
+        </div>
+        <div class="col-md-2">
             <label for="script" class="form-label">Script</label>
             <select id="script" class="form-select"></select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <button id="run" class="btn btn-primary w-100">Run</button>
         </div>
     </div>
@@ -36,17 +44,21 @@
 </div>
 
     <script>
-    const scripts = {{ scripts|tojson }};
+    const devices = {{ devices|tojson }};
     const manufSelect = document.getElementById('manufacturer');
     const deviceSelect = document.getElementById('device');
+    const siteTypeSelect = document.getElementById('site_type');
+    const configTypeSelect = document.getElementById('config_type');
     const scriptSelect = document.getElementById('script');
 
     manufSelect.addEventListener('change', () => {
         const m = manufSelect.value;
         deviceSelect.innerHTML = '';
+        siteTypeSelect.innerHTML = '';
+        configTypeSelect.innerHTML = '';
         scriptSelect.innerHTML = '';
-        if (scripts[m]) {
-            Object.keys(scripts[m]).forEach(d => {
+        if (devices[m]) {
+            Object.keys(devices[m]).forEach(d => {
                 const opt = document.createElement('option');
                 opt.value = d;
                 opt.textContent = d;
@@ -58,9 +70,43 @@
     deviceSelect.addEventListener('change', () => {
         const m = manufSelect.value;
         const d = deviceSelect.value;
+        siteTypeSelect.innerHTML = '';
+        configTypeSelect.innerHTML = '';
         scriptSelect.innerHTML = '';
-        if (scripts[m] && scripts[m][d]) {
-            scripts[m][d].forEach(s => {
+        if (devices[m] && devices[m][d]) {
+            Object.keys(devices[m][d]).forEach(st => {
+                const opt = document.createElement('option');
+                opt.value = st;
+                opt.textContent = st;
+                siteTypeSelect.appendChild(opt);
+            });
+        }
+    });
+
+    siteTypeSelect.addEventListener('change', () => {
+        const m = manufSelect.value;
+        const d = deviceSelect.value;
+        const st = siteTypeSelect.value;
+        configTypeSelect.innerHTML = '';
+        scriptSelect.innerHTML = '';
+        if (devices[m] && devices[m][d] && devices[m][d][st]) {
+            Object.keys(devices[m][d][st]).forEach(ct => {
+                const opt = document.createElement('option');
+                opt.value = ct;
+                opt.textContent = ct;
+                configTypeSelect.appendChild(opt);
+            });
+        }
+    });
+
+    configTypeSelect.addEventListener('change', () => {
+        const m = manufSelect.value;
+        const d = deviceSelect.value;
+        const st = siteTypeSelect.value;
+        const ct = configTypeSelect.value;
+        scriptSelect.innerHTML = '';
+        if (devices[m] && devices[m][d] && devices[m][d][st] && devices[m][d][st][ct]) {
+            devices[m][d][st][ct].forEach(s => {
                 const opt = document.createElement('option');
                 opt.value = s;
                 opt.textContent = s;
@@ -73,9 +119,17 @@
     document.getElementById('run').addEventListener('click', () => {
         const m = manufSelect.value;
         const d = deviceSelect.value;
+        const st = siteTypeSelect.value;
+        const ct = configTypeSelect.value;
         const s = scriptSelect.value;
         document.getElementById('output').textContent = '';
-        socket.emit('run_script', {manufacturer: m, device: d, script: s});
+        socket.emit('run_script', {
+            manufacturer: m,
+            device: d,
+            site_type: st,
+            config_type: ct,
+            script: s
+        });
     });
 
     socket.on('output', line => {

@@ -1,23 +1,44 @@
 {
   "Mikrotik": {
-    "450G": ["script1", "script2"],
-    "Metal": ["script1"]
+    "450G": {
+      "default": {
+        "default": ["script1", "script2"]
+      }
+    },
+    "Metal": {
+      "default": {
+        "default": ["script1"]
+      }
+    }
   },
   "Cambium": {
     "3000L": {
-      "nbn": ["sector", "omni"],
-      "rcp": ["sector", "omni"]
+      "nbn": {
+        "sector": ["sector"],
+        "omni": ["omni"]
+      },
+      "rcp": {
+        "sector": ["sector"],
+        "omni": ["omni"]
+      }
     },
     "XV2-22H": {
-      "provisioning": ["script1", "script2"],
-      "rcp": ["script3"]
-
+      "provisioning": {
+        "default": ["script1", "script2"]
+      },
+      "rcp": {
+        "default": ["script3"]
+      }
     },
     "XV2-2T0": {
-      "provisioning": ["script1", "script2"]
+      "provisioning": {
+        "default": ["script1", "script2"]
+      }
     },
     "Force300-16": {
-      "nbn": ["P2P", "Remote"]
+      "nbn": {
+        "default": ["P2P", "Remote"]
+      }
     }
   }
 }
