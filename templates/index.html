@@ -10,7 +10,7 @@
 <div class="container py-5">
     <h1 class="mb-4">Run Device Configuration</h1>
     <div class="row g-3 align-items-end">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <label for="manufacturer" class="form-label">Manufacturer</label>
             <select id="manufacturer" class="form-select">
                 <option value="">Select...</option>
@@ -19,11 +19,15 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-4">
-            <label for="script" class="form-label">Device</label>
+        <div class="col-md-3">
+            <label for="device" class="form-label">Device</label>
+            <select id="device" class="form-select"></select>
+        </div>
+        <div class="col-md-3">
+            <label for="script" class="form-label">Script</label>
             <select id="script" class="form-select"></select>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <button id="run" class="btn btn-primary w-100">Run</button>
         </div>
     </div>
@@ -34,13 +38,29 @@
     <script>
     const scripts = {{ scripts|tojson }};
     const manufSelect = document.getElementById('manufacturer');
+    const deviceSelect = document.getElementById('device');
     const scriptSelect = document.getElementById('script');
 
     manufSelect.addEventListener('change', () => {
-        const val = manufSelect.value;
+        const m = manufSelect.value;
+        deviceSelect.innerHTML = '';
         scriptSelect.innerHTML = '';
-        if (scripts[val]) {
-            scripts[val].forEach(s => {
+        if (scripts[m]) {
+            Object.keys(scripts[m]).forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d;
+                opt.textContent = d;
+                deviceSelect.appendChild(opt);
+            });
+        }
+    });
+
+    deviceSelect.addEventListener('change', () => {
+        const m = manufSelect.value;
+        const d = deviceSelect.value;
+        scriptSelect.innerHTML = '';
+        if (scripts[m] && scripts[m][d]) {
+            scripts[m][d].forEach(s => {
                 const opt = document.createElement('option');
                 opt.value = s;
                 opt.textContent = s;
@@ -52,9 +72,10 @@
     const socket = io();
     document.getElementById('run').addEventListener('click', () => {
         const m = manufSelect.value;
+        const d = deviceSelect.value;
         const s = scriptSelect.value;
         document.getElementById('output').textContent = '';
-        socket.emit('run_script', {manufacturer: m, script: s});
+        socket.emit('run_script', {manufacturer: m, device: d, script: s});
     });
 
     socket.on('output', line => {

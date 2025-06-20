@@ -1,0 +1,11 @@
+{
+  "Mikrotik": {
+    "450G": ["script1", "script2"],
+    "Metal": ["script1"]
+  },
+  "Cambium": {
+    "3000L": ["script1", "script2"],
+    "XV2-22H": ["script1", "script2"],
+    "XV2-2T0": ["script1", "script2"]
+  }
+}
