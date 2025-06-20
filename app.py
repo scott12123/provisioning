@@ -87,6 +87,12 @@ def label_printer():
     devices = get_devices()
     return render_template('label_printer.html', devices=devices)
 
+@app.route('/telemetry_device')
+def telemetry_device():
+    """Display the device configuration page."""
+    devices = get_devices()
+    return render_template('telemetry_device.html', devices=devices)
+
 @socketio.on('run_script')
 def run_script(data):
     """Validate input and start the selected script."""

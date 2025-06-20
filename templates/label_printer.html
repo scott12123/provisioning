@@ -37,6 +37,9 @@
         <li class="nav-item"><a class="nav-link" href="{{ url_for('device_config') }}">Device Configuration</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('device_reset') }}">Device Resetting</a></li>
         <li class="nav-item"><a class="nav-link active" aria-current="page" href="{{ url_for('label_printer') }}">Label Printer</a></li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('telemetry_device') }}">Telemetry</a>
+        </li>
       </ul>
     </div>
   </div>
@@ -103,3 +106,4 @@
 </script>
 </body>
 </html>
+
