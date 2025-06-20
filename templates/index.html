@@ -5,11 +5,29 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            border-radius: .5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #output {
+            height: 600px;
+            overflow-y: auto;
+            font-family: monospace;
+            background: #212529;
+            color: #f8f9fa;
+            border-radius: .5rem;
+        }
+    </style>
 </head>
 <body>
 <div class="container py-5">
-    <h1 class="mb-4">Run Device Configuration</h1>
-    <div class="row g-3 align-items-end">
+    <div class="card p-4">
+        <h1 class="mb-4">Run Device Configuration</h1>
+        <div class="row g-3 align-items-end">
         <div class="col-md-2">
             <label for="manufacturer" class="form-label">Manufacturer</label>
             <select id="manufacturer" class="form-select">
@@ -32,10 +50,6 @@
             <select id="config_type" class="form-select"></select>
         </div>
         <div class="col-md-2">
-            <label for="script" class="form-label">Script</label>
-            <select id="script" class="form-select"></select>
-        </div>
-        <div class="col-md-2">
             <button id="run" class="btn btn-primary w-100">Run</button>
         </div>
     </div>
@@ -49,6 +63,7 @@
     </div>
 
     <pre id="output" class="bg-dark text-white mt-4 p-3" style="height: 600px; overflow-y: auto;"></pre>
+    </div>
 </div>
 
     <script>
@@ -57,9 +72,9 @@
     const deviceSelect = document.getElementById('device');
     const siteTypeSelect = document.getElementById('site_type');
     const configTypeSelect = document.getElementById('config_type');
-    const scriptSelect = document.getElementById('script');
     const csvInput = document.getElementById('csv_input');
     const outputEl = document.getElementById('output');
+    let selectedScript = '';
 
     function resetSelect(sel) {
         sel.innerHTML = '';
@@ -72,14 +87,13 @@
     resetSelect(deviceSelect);
     resetSelect(siteTypeSelect);
     resetSelect(configTypeSelect);
-    resetSelect(scriptSelect);
 
     manufSelect.addEventListener('change', () => {
         const m = manufSelect.value;
         resetSelect(deviceSelect);
         resetSelect(siteTypeSelect);
         resetSelect(configTypeSelect);
-        resetSelect(scriptSelect);
+        selectedScript = '';
         if (devices[m]) {
             Object.keys(devices[m]).forEach(d => {
                 const opt = document.createElement('option');
@@ -96,7 +110,7 @@
 
         resetSelect(siteTypeSelect);
         resetSelect(configTypeSelect);
-        resetSelect(scriptSelect);
+        selectedScript = '';
 
         const csvLabel = document.getElementById('csv_label');
         const csvInput = document.getElementById('csv_input');
@@ -130,7 +144,7 @@
         const d = deviceSelect.value;
         const st = siteTypeSelect.value;
         resetSelect(configTypeSelect);
-        resetSelect(scriptSelect);
+        selectedScript = '';
         if (devices[m] && devices[m][d] && devices[m][d][st]) {
             Object.keys(devices[m][d][st]).forEach(ct => {
                 const opt = document.createElement('option');
@@ -146,14 +160,9 @@
         const d = deviceSelect.value;
         const st = siteTypeSelect.value;
         const ct = configTypeSelect.value;
-        resetSelect(scriptSelect);
+        selectedScript = '';
         if (devices[m] && devices[m][d] && devices[m][d][st] && devices[m][d][st][ct]) {
-            devices[m][d][st][ct].forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s;
-                opt.textContent = s;
-                scriptSelect.appendChild(opt);
-            });
+            selectedScript = devices[m][d][st][ct][0] || '';
         }
     });
 
@@ -163,7 +172,6 @@
         const d = deviceSelect.value;
         const st = siteTypeSelect.value;
         const ct = configTypeSelect.value;
-        const s = scriptSelect.value;
         const csvLines = csvInput.value.split('\n')
             .map(l => l.trim())
             .filter(l => l)
@@ -176,7 +184,7 @@
             device: d,
             site_type: st,
             config_type: ct,
-            script: s,
+            script: selectedScript,
             csv: csvLines
         });
     });
