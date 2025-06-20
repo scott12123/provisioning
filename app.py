@@ -144,6 +144,13 @@ def run_reset():
     socketio.emit('output', 'Running cambium/reset.py\n', to=sid)
     socketio.start_background_task(run_command, 'cambium/reset.py', sid)
 
+@socketio.on('configure_tinys3')
+def configure_tinys3():
+    """Run the Cambium reset script without any parameters."""
+    sid = request.sid
+    socketio.emit('output', 'Running victron/tinys3_configuration.py\n', to=sid)
+    socketio.start_background_task(run_command, 'victron/tinys3_configuration.py', sid)
+
 
 @socketio.on('print_label')
 def print_label(data):
