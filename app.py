@@ -69,13 +69,23 @@ def index():
     """Render the home page."""
     return render_template('index.html')
 
-
 @app.route('/device-config')
 def device_config():
     """Display the device configuration page."""
     devices = get_devices()
     return render_template('device_config.html', devices=devices)
 
+@app.route('/device-reset')
+def device_reset():
+    """Display the device configuration page."""
+    devices = get_devices()
+    return render_template('device_reset.html', devices=devices)
+
+@app.route('/label_printer')
+def label_printer():
+    """Display the device configuration page."""
+    devices = get_devices()
+    return render_template('label_printer.html', devices=devices)
 
 @socketio.on('run_script')
 def run_script(data):

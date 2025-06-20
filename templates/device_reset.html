@@ -36,10 +36,10 @@
           <a class="nav-link" href="{{ url_for('index') }}">Home</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{{ url_for('device_config') }}">Device Configuration</a>
+          <a class="nav-link" aria-current="page" href="{{ url_for('device_config') }}">Device Configuration</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="{{ url_for('device_reset') }}">Device Resetting</a>
+          <a class="nav-link active" aria-current="page" href="{{ url_for('device_reset') }}">Device Resetting</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('label_printer') }}">Label Printer</a>
@@ -50,7 +50,7 @@
 </nav>
 <div class="container py-5">
     <div class="card p-4">
-        <h1 class="mb-4">Run Device Configuration</h1>
+        <h1 class="mb-4">Device Reset Tool</h1>
         <div class="row g-3 align-items-end">
         <div class="col-md-2">
             <label for="manufacturer" class="form-label">Manufacturer</label>

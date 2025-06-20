@@ -20,6 +20,12 @@
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('device_config') }}">Device Configuration</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('device_reset') }}">Device Resetting</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('label_printer') }}">Label Printer</a>
+        </li>
       </ul>
     </div>
   </div>
@@ -27,7 +33,8 @@
 
 <div class="container py-5 text-center">
   <h1 class="mb-4">Provisioning Pi</h1>
-  <a href="{{ url_for('device_config') }}" class="btn btn-primary btn-lg">Go to Device Configuration</a>
+  <a href="{{ url_for('device_config') }}" class="btn btn-primary btn-lg">Device Configuration</a>
+  <a href="{{ url_for('device_reset') }}" class="btn btn-danger btn-lg">Device Resetting</a>
 </div>
 </body>
 </html>
