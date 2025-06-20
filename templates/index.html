@@ -3,16 +3,57 @@
 <head>
     <title>Provisioning Tool</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
 {% set active_page = 'home' %}
 {% include "header.html" %}
 
-<div class="container py-5 text-center">
-  <h1 class="mb-4">Provisioning Pi</h1>
-  <a href="{{ url_for('device_config') }}" class="btn btn-primary btn-lg">Device Configuration</a>
-  <a href="{{ url_for('device_reset') }}" class="btn btn-danger btn-lg">Device Resetting</a>
+<div class="container py-5">
+  <h1 class="mb-5 text-center">Provisioning Pi</h1>
+  <div class="row g-4 justify-content-center">
+    <div class="col-6 col-md-4 col-lg-3">
+      <a href="{{ url_for('device_config') }}" class="text-decoration-none">
+        <div class="card shadow-sm text-center h-100">
+          <div class="card-body">
+            <i class="bi bi-tools display-1 text-primary"></i>
+            <h5 class="mt-3">Device Configuration</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+      <a href="{{ url_for('device_reset') }}" class="text-decoration-none">
+        <div class="card shadow-sm text-center h-100">
+          <div class="card-body">
+            <i class="bi bi-arrow-repeat display-1 text-danger"></i>
+            <h5 class="mt-3">Device Resetting</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+      <a href="{{ url_for('label_printer') }}" class="text-decoration-none">
+        <div class="card shadow-sm text-center h-100">
+          <div class="card-body">
+            <i class="bi bi-printer display-1 text-success"></i>
+            <h5 class="mt-3">Label Printer</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+      <a href="{{ url_for('telemetry_device') }}" class="text-decoration-none">
+        <div class="card shadow-sm text-center h-100">
+          <div class="card-body">
+            <i class="bi bi-graph-up display-1 text-info"></i>
+            <h5 class="mt-3">Telemetry</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
 </div>
 </body>
 </html>
