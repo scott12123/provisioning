@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+    <title>Device Configurator</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Run Device Configuration</h1>
+    <label for="manufacturer">Manufacturer:</label>
+    <select id="manufacturer">
+        <option value="">Select...</option>
+        {% for m in scripts.keys() %}
+        <option value="{{ m }}">{{ m }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="script">Device:</label>
+    <select id="script"></select>
+    <button id="run">Run</button>
+
+    <pre id="output"></pre>
+
+    <script>
+    const scripts = {{ scripts|tojson }};
+    const manufSelect = document.getElementById('manufacturer');
+    const scriptSelect = document.getElementById('script');
+
+    manufSelect.addEventListener('change', () => {
+        const val = manufSelect.value;
+        scriptSelect.innerHTML = '';
+        if (scripts[val]) {
+            scripts[val].forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                scriptSelect.appendChild(opt);
+            });
+        }
+    });
+
+    const socket = io();
+    document.getElementById('run').addEventListener('click', () => {
+        const m = manufSelect.value;
+        const s = scriptSelect.value;
+        document.getElementById('output').textContent = '';
+        socket.emit('run_script', {manufacturer: m, script: s});
+    });
+
+    socket.on('output', line => {
+        document.getElementById('output').textContent += line;
+    });
+
+    socket.on('finished', data => {
+        document.getElementById('output').textContent += '\nProcess exited with ' + data.returncode;
+    });
+    </script>
+</body>
+</html>
