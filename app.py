@@ -1,25 +1,18 @@
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO
-import subprocess
 import os
+import json
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 
-REPO_ROOT = os.path.dirname(os.path.abspath(__file__ + '/../'))
-SCRIPT_DIRS = {
-    'cambium': os.path.join(REPO_ROOT, 'cambium'),
-    'mikrotik': os.path.join(REPO_ROOT, 'mikrotik')
-}
+DATA_FILE = os.path.join(os.path.dirname(__file__), 'devices.json')
 
 
 def get_scripts():
-    data = {}
-    for manuf, path in SCRIPT_DIRS.items():
-        if os.path.isdir(path):
-            data[manuf] = [f for f in os.listdir(path) if f.endswith('.py')]
-    return data
+    with open(DATA_FILE) as f:
+        return json.load(f)
 
 
 @app.route('/')
@@ -31,30 +24,14 @@ def index():
 @socketio.on('run_script')
 def run_script(data):
     manufacturer = data.get('manufacturer')
+    device = data.get('device')
     script = data.get('script')
-    if not manufacturer or not script:
+    if not manufacturer or not device or not script:
         socketio.emit('output', 'Missing selection\n', to=request.sid)
         return
 
-    path = SCRIPT_DIRS.get(manufacturer)
-    script_path = os.path.join(path, script)
-    if not os.path.isfile(script_path):
-        socketio.emit('output', 'Script not found\n', to=request.sid)
-        return
-
-    def run():
-        process = subprocess.Popen(
-            ['python3', script_path],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True
-        )
-        for line in process.stdout:
-            socketio.emit('output', line, to=request.sid)
-        process.wait()
-        socketio.emit('finished', {'returncode': process.returncode}, to=request.sid)
-
-    socketio.start_background_task(run)
+    socketio.emit('output', f"Running {script} for {manufacturer} {device}\n", to=request.sid)
+    socketio.emit('finished', {'returncode': 0}, to=request.sid)
 
 
 if __name__ == '__main__':
