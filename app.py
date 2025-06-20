@@ -16,9 +16,9 @@ def get_devices():
     with open(DATA_FILE) as f:
         return json.load(f)
 
-
-def run_command(cmd, sid):
-    """Run a command and stream each output line back to the client."""
+def run_command(script_path, sid):
+    """Run a Python script and stream each output line back to the client."""
+    cmd = f"python3 {script_path}"  # <-- fix here
     try:
         proc = subprocess.Popen(
             cmd,
@@ -41,7 +41,7 @@ def run_commands(script, params_list, sid):
     """Run a script for each parameter entry in params_list."""
     last_rc = 0
     for params in params_list:
-        cmd = f"{script} {params}"
+        cmd = f"python3 {script} {params}"
         socketio.emit('output', f"\n> {cmd}\n", to=sid)
         try:
             proc = subprocess.Popen(
