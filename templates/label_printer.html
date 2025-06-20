@@ -1,25 +1,26 @@
 <!doctype html>
 <html>
 <head>
-    <title>Device Configurator</title>
+    <title>Label Printer</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .card {
-            border-radius: .5rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        #output {
-            height: 600px;
-            overflow-y: auto;
-            font-family: monospace;
-            background: #212529;
-            color: #f8f9fa;
-            border-radius: .5rem;
+        body { background-color: #f8f9fa; }
+        .card { border-radius: .5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        #preview {
+            width: 340px;
+            height: 70px;
+            border: 1px dashed #6c757d;
+            font-family: 'Roboto', sans-serif;
+            font-size: 55px;
+            display: flex;
+            align-items: center;
+            padding-left: 20px;
+            overflow: hidden;
+            white-space: nowrap;
+            background: #fff;
         }
     </style>
 </head>
@@ -32,196 +33,38 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('index') }}">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="{{ url_for('device_config') }}">Device Configuration</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link " aria-current="page" href="{{ url_for('device_reset') }}">Device Resetting</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active" href="{{ url_for('label_printer') }}">Label Printer</a>
-        </li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('device_config') }}">Device Configuration</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('device_reset') }}">Device Resetting</a></li>
+        <li class="nav-item"><a class="nav-link active" aria-current="page" href="{{ url_for('label_printer') }}">Label Printer</a></li>
       </ul>
     </div>
   </div>
 </nav>
 <div class="container py-5">
-    <div class="card p-4">
-        <h1 class="mb-4">Device Reset Tool</h1>
-        <div class="row g-3 align-items-end">
-        <div class="col-md-2">
-            <label for="manufacturer" class="form-label">Manufacturer</label>
-            <select id="manufacturer" class="form-select">
-                <option value="">Select...</option>
-                {% for m in devices.keys() %}
-                <option value="{{ m }}">{{ m }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label for="device" class="form-label">Device</label>
-            <select id="device" class="form-select"></select>
-        </div>
-        <div class="col-md-2">
-            <label for="site_type" class="form-label">Site Type</label>
-            <select id="site_type" class="form-select"></select>
-        </div>
-        <div class="col-md-2">
-            <label for="config_type" class="form-label">Configuration Type</label>
-            <select id="config_type" class="form-select"></select>
-        </div>
-        <div class="col-md-2">
-            <button id="run" class="btn btn-primary w-100">Run</button>
-        </div>
+  <div class="card p-4">
+    <h1 class="mb-4">Label Printer</h1>
+    <div class="mb-3">
+      <label for="label_text" class="form-label">Label Text</label>
+      <textarea id="label_text" class="form-control" rows="2" placeholder="Enter label text"></textarea>
     </div>
-
-    <div class="row g-3 mt-3">
-        <div class="col-12">
-            <h5>Device Config (CSV, one device per line)</h5>
-            <label id="csv_label" for="csv_input" class="form-label">Device Config (CSV, one device per line)</label>
-            <textarea id="csv_input" class="form-control" rows="4"></textarea>
-        </div>
+    <div class="mb-3">
+      <label class="form-label">Preview</label>
+      <div id="preview"></div>
     </div>
-
-    <pre id="output" class="bg-dark text-white mt-4 p-3" style="height: 600px; overflow-y: auto;"></pre>
-    </div>
+    <button id="print_btn" class="btn btn-primary">Print</button>
+  </div>
 </div>
-
-    <script>
-    const devices = {{ devices|tojson }};
-    const manufSelect = document.getElementById('manufacturer');
-    const deviceSelect = document.getElementById('device');
-    const siteTypeSelect = document.getElementById('site_type');
-    const configTypeSelect = document.getElementById('config_type');
-    const csvInput = document.getElementById('csv_input');
-    const outputEl = document.getElementById('output');
-    let selectedScript = '';
-
-    function resetSelect(sel) {
-        sel.innerHTML = '';
-        const opt = document.createElement('option');
-        opt.value = '';
-        opt.textContent = 'Select...';
-        sel.appendChild(opt);
-    }
-
-    resetSelect(deviceSelect);
-    resetSelect(siteTypeSelect);
-    resetSelect(configTypeSelect);
-
-    manufSelect.addEventListener('change', () => {
-        const m = manufSelect.value;
-        resetSelect(deviceSelect);
-        resetSelect(siteTypeSelect);
-        resetSelect(configTypeSelect);
-        selectedScript = '';
-        if (devices[m]) {
-            Object.keys(devices[m]).forEach(d => {
-                const opt = document.createElement('option');
-                opt.value = d;
-                opt.textContent = d;
-                deviceSelect.appendChild(opt);
-            });
-        }
-    });
-
-    deviceSelect.addEventListener('change', () => {
-        const m = manufSelect.value;
-        const d = deviceSelect.value;
-
-        resetSelect(siteTypeSelect);
-        resetSelect(configTypeSelect);
-        selectedScript = '';
-
-        const csvLabel = document.getElementById('csv_label');
-        const csvInput = document.getElementById('csv_input');
-
-        if (devices[m] && devices[m][d]) {
-            const deviceData = devices[m][d];
-
-            // ✅ Set CSV label and placeholder if format exists
-            if (deviceData.csv_format) {
-                csvLabel.textContent = `Device Config (CSV: ${deviceData.csv_format})`;
-                csvInput.placeholder = deviceData.csv_format;
-            } else {
-                csvLabel.textContent = "Device Config (CSV, one device per line)";
-                csvInput.placeholder = "name,ip,bridge,frequency";
-            }
-
-            // ✅ Populate site types, skipping "csv_format"
-            Object.keys(deviceData).forEach(st => {
-                if (st === "csv_format") return;  // skip non-site-type keys
-                const opt = document.createElement('option');
-                opt.value = st;
-                opt.textContent = st;
-                siteTypeSelect.appendChild(opt);
-            });
-        }
-    });
-
-
-    siteTypeSelect.addEventListener('change', () => {
-        const m = manufSelect.value;
-        const d = deviceSelect.value;
-        const st = siteTypeSelect.value;
-        resetSelect(configTypeSelect);
-        selectedScript = '';
-        if (devices[m] && devices[m][d] && devices[m][d][st]) {
-            Object.keys(devices[m][d][st]).forEach(ct => {
-                const opt = document.createElement('option');
-                opt.value = ct;
-                opt.textContent = ct;
-                configTypeSelect.appendChild(opt);
-            });
-        }
-    });
-
-    configTypeSelect.addEventListener('change', () => {
-        const m = manufSelect.value;
-        const d = deviceSelect.value;
-        const st = siteTypeSelect.value;
-        const ct = configTypeSelect.value;
-        selectedScript = '';
-        if (devices[m] && devices[m][d] && devices[m][d][st] && devices[m][d][st][ct]) {
-            selectedScript = devices[m][d][st][ct][0] || '';
-        }
-    });
-
-    const socket = io();
-    document.getElementById('run').addEventListener('click', () => {
-        const m = manufSelect.value;
-        const d = deviceSelect.value;
-        const st = siteTypeSelect.value;
-        const ct = configTypeSelect.value;
-        const csvLines = csvInput.value.split('\n')
-            .map(l => l.trim())
-            .filter(l => l)
-            .map(l => l.split(',')
-                .map(f => f.trim().replace(/\s+/g, '_'))
-                .join(','));
-        outputEl.textContent = '';
-        socket.emit('run_script', {
-            manufacturer: m,
-            device: d,
-            site_type: st,
-            config_type: ct,
-            script: selectedScript,
-            csv: csvLines
-        });
-    });
-
-    socket.on('output', line => {
-        outputEl.textContent += line;
-        outputEl.scrollTop = outputEl.scrollHeight;
-    });
-
-    socket.on('finished', data => {
-        outputEl.textContent += '\nProcess exited with ' + data.returncode;
-        outputEl.scrollTop = outputEl.scrollHeight;
-    });
-    </script>
+<script>
+  const preview = document.getElementById('preview');
+  const labelInput = document.getElementById('label_text');
+  labelInput.addEventListener('input', () => {
+    preview.textContent = labelInput.value;
+  });
+  const socket = io();
+  document.getElementById('print_btn').addEventListener('click', () => {
+    socket.emit('print_label', { text: labelInput.value });
+  });
+</script>
 </body>
 </html>
