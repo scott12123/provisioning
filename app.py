@@ -18,7 +18,7 @@ def get_devices():
 
 def run_command(script_path, sid):
     """Run a Python script and stream each output line back to the client."""
-    cmd = f"python3 {script_path}"  # <-- fix here
+    cmd = f"python3 {script_path}"
     try:
         proc = subprocess.Popen(
             cmd,
