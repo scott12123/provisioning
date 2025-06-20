@@ -14,9 +14,17 @@
   "Cambium": {
     "3000L": {
       "csv_format": "DeviceName,IP,WifiBridge_X,Frequency",
+      "Generic": {
+        "Sector": ["cambium/nbn/3000l.py"],
+        "Sector": ["cambium/nbn/3000l.py"],
+        "Sector Spare": ["cambium/nbn/3000l.py"],
+        "Omni Spare": ["cambium/nbn/3000l.py"]
+      },
       "nbn": {
-        "sector": ["cambium/nbn/3000l.py"],
-        "omni": ["cambium/nbn/3000l.py"]
+        "Sector": ["cambium/nbn/3000l.py"],
+        "Omni": ["cambium/nbn/3000l.py"],
+        "Sector Spare": ["cambium/nbn/3000l.py"],
+        "Omni Spare": ["cambium/nbn/3000l.py"]
       },
       "rcp": {
         "sector": ["cambium/rcp/3000l.py"],
