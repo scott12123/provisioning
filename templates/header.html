@@ -1,0 +1,27 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" href="{{ url_for('index') }}">Project Provisioning</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link {% if active_page == 'home' %}active{% endif %}" {% if active_page == 'home' %}aria-current="page"{% endif %} href="{{ url_for('index') }}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if active_page == 'device_config' %}active{% endif %}" {% if active_page == 'device_config' %}aria-current="page"{% endif %} href="{{ url_for('device_config') }}">Device Configuration</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if active_page == 'device_reset' %}active{% endif %}" {% if active_page == 'device_reset' %}aria-current="page"{% endif %} href="{{ url_for('device_reset') }}">Device Resetting</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if active_page == 'label_printer' %}active{% endif %}" {% if active_page == 'label_printer' %}aria-current="page"{% endif %} href="{{ url_for('label_printer') }}">Label Printer</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if active_page == 'telemetry_device' %}active{% endif %}" {% if active_page == 'telemetry_device' %}aria-current="page"{% endif %} href="{{ url_for('telemetry_device') }}">Telemetry</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
