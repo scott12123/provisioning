@@ -45,6 +45,9 @@ def index():
 
 @socketio.on('run_script')
 def run_script(data):
+    """Validate input and start the selected script."""
+    sid = request.sid
+
     manufacturer = data.get('manufacturer')
     device = data.get('device')
     site_type = data.get('site_type')
@@ -52,32 +55,31 @@ def run_script(data):
     script = data.get('script')
 
     if not all([manufacturer, device, site_type, config_type, script]):
-        socketio.emit('output', 'Missing selection\n', to=request.sid)
+        socketio.emit('output', 'Missing selection\n', to=sid)
+        socketio.emit('finished', {'returncode': -1}, to=sid)
         return
 
     devices = get_devices()
     try:
         available = devices[manufacturer][device][site_type][config_type]
     except KeyError:
-        socketio.emit('output', 'Invalid selection\n', to=request.sid)
-        return
-
-    if script not in available:
-        socketio.emit('output', 'Invalid script\n', to=request.sid)
-        return
-
-    socketio.emit('output',
-                   f"Running {script} for {manufacturer} {device} ({site_type}/{config_type})\n",
-                   to=request.sid)
-    socketio.emit('finished', {'returncode': 0}, to=request.sid)
-
-    sid = request.sid
-    if not manufacturer or not device or not script:
-        socketio.emit('output', 'Missing selection\n', to=sid)
+        socketio.emit('output', 'Invalid selection\n', to=sid)
         socketio.emit('finished', {'returncode': -1}, to=sid)
         return
 
-    socketio.emit('output', f"Running {script} for {manufacturer} {device}\n", to=sid)
+    if script not in available:
+        socketio.emit('output', 'Invalid script\n', to=sid)
+        socketio.emit('finished', {'returncode': -1}, to=sid)
+        return
+
+    socketio.emit(
+        'output',
+        f"Running {script} for {manufacturer} {device} ({site_type}/{config_type})\n",
+        to=sid,
+    )
+
+    # Start command execution in the background. run_command will emit
+    # output lines and the final 'finished' event when complete.
     socketio.start_background_task(run_command, script, sid)
 
 

@@ -51,12 +51,25 @@
     const configTypeSelect = document.getElementById('config_type');
     const scriptSelect = document.getElementById('script');
 
+    function resetSelect(sel) {
+        sel.innerHTML = '';
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'Select...';
+        sel.appendChild(opt);
+    }
+
+    resetSelect(deviceSelect);
+    resetSelect(siteTypeSelect);
+    resetSelect(configTypeSelect);
+    resetSelect(scriptSelect);
+
     manufSelect.addEventListener('change', () => {
         const m = manufSelect.value;
-        deviceSelect.innerHTML = '';
-        siteTypeSelect.innerHTML = '';
-        configTypeSelect.innerHTML = '';
-        scriptSelect.innerHTML = '';
+        resetSelect(deviceSelect);
+        resetSelect(siteTypeSelect);
+        resetSelect(configTypeSelect);
+        resetSelect(scriptSelect);
         if (devices[m]) {
             Object.keys(devices[m]).forEach(d => {
                 const opt = document.createElement('option');
@@ -70,9 +83,9 @@
     deviceSelect.addEventListener('change', () => {
         const m = manufSelect.value;
         const d = deviceSelect.value;
-        siteTypeSelect.innerHTML = '';
-        configTypeSelect.innerHTML = '';
-        scriptSelect.innerHTML = '';
+        resetSelect(siteTypeSelect);
+        resetSelect(configTypeSelect);
+        resetSelect(scriptSelect);
         if (devices[m] && devices[m][d]) {
             Object.keys(devices[m][d]).forEach(st => {
                 const opt = document.createElement('option');
@@ -87,8 +100,8 @@
         const m = manufSelect.value;
         const d = deviceSelect.value;
         const st = siteTypeSelect.value;
-        configTypeSelect.innerHTML = '';
-        scriptSelect.innerHTML = '';
+        resetSelect(configTypeSelect);
+        resetSelect(scriptSelect);
         if (devices[m] && devices[m][d] && devices[m][d][st]) {
             Object.keys(devices[m][d][st]).forEach(ct => {
                 const opt = document.createElement('option');
@@ -104,7 +117,7 @@
         const d = deviceSelect.value;
         const st = siteTypeSelect.value;
         const ct = configTypeSelect.value;
-        scriptSelect.innerHTML = '';
+        resetSelect(scriptSelect);
         if (devices[m] && devices[m][d] && devices[m][d][st] && devices[m][d][st][ct]) {
             devices[m][d][st][ct].forEach(s => {
                 const opt = document.createElement('option');
