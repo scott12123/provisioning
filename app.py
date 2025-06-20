@@ -131,5 +131,13 @@ def run_script(data):
         socketio.start_background_task(run_command, script, sid)
 
 
+@socketio.on('run_reset')
+def run_reset():
+    """Run the Cambium reset script without any parameters."""
+    sid = request.sid
+    socketio.emit('output', 'Running cambium/reset.py\n', to=sid)
+    socketio.start_background_task(run_command, 'cambium/reset.py', sid)
+
+
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000)

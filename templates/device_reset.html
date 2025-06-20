@@ -56,127 +56,8 @@
 </div>
 
     <script>
-    const devices = {{ devices|tojson }};
-    const manufSelect = document.getElementById('manufacturer');
-    const deviceSelect = document.getElementById('device');
-    const siteTypeSelect = document.getElementById('site_type');
-    const configTypeSelect = document.getElementById('config_type');
-    const csvInput = document.getElementById('csv_input');
-    const outputEl = document.getElementById('output');
-    let selectedScript = '';
-
-    function resetSelect(sel) {
-        sel.innerHTML = '';
-        const opt = document.createElement('option');
-        opt.value = '';
-        opt.textContent = 'Select...';
-        sel.appendChild(opt);
-    }
-
-    resetSelect(deviceSelect);
-    resetSelect(siteTypeSelect);
-    resetSelect(configTypeSelect);
-
-    manufSelect.addEventListener('change', () => {
-        const m = manufSelect.value;
-        resetSelect(deviceSelect);
-        resetSelect(siteTypeSelect);
-        resetSelect(configTypeSelect);
-        selectedScript = '';
-        if (devices[m]) {
-            Object.keys(devices[m]).forEach(d => {
-                const opt = document.createElement('option');
-                opt.value = d;
-                opt.textContent = d;
-                deviceSelect.appendChild(opt);
-            });
-        }
-    });
-
-    deviceSelect.addEventListener('change', () => {
-        const m = manufSelect.value;
-        const d = deviceSelect.value;
-
-        resetSelect(siteTypeSelect);
-        resetSelect(configTypeSelect);
-        selectedScript = '';
-
-        const csvLabel = document.getElementById('csv_label');
-        const csvInput = document.getElementById('csv_input');
-
-        if (devices[m] && devices[m][d]) {
-            const deviceData = devices[m][d];
-
-            // ✅ Set CSV label and placeholder if format exists
-            if (deviceData.csv_format) {
-                csvLabel.textContent = `Device Config (CSV: ${deviceData.csv_format})`;
-                csvInput.placeholder = deviceData.csv_format;
-            } else {
-                csvLabel.textContent = "Device Config (CSV, one device per line)";
-                csvInput.placeholder = "name,ip,bridge,frequency";
-            }
-
-            // ✅ Populate site types, skipping "csv_format"
-            Object.keys(deviceData).forEach(st => {
-                if (st === "csv_format") return;  // skip non-site-type keys
-                const opt = document.createElement('option');
-                opt.value = st;
-                opt.textContent = st;
-                siteTypeSelect.appendChild(opt);
-            });
-        }
-    });
-
-
-    siteTypeSelect.addEventListener('change', () => {
-        const m = manufSelect.value;
-        const d = deviceSelect.value;
-        const st = siteTypeSelect.value;
-        resetSelect(configTypeSelect);
-        selectedScript = '';
-        if (devices[m] && devices[m][d] && devices[m][d][st]) {
-            Object.keys(devices[m][d][st]).forEach(ct => {
-                const opt = document.createElement('option');
-                opt.value = ct;
-                opt.textContent = ct;
-                configTypeSelect.appendChild(opt);
-            });
-        }
-    });
-
-    configTypeSelect.addEventListener('change', () => {
-        const m = manufSelect.value;
-        const d = deviceSelect.value;
-        const st = siteTypeSelect.value;
-        const ct = configTypeSelect.value;
-        selectedScript = '';
-        if (devices[m] && devices[m][d] && devices[m][d][st] && devices[m][d][st][ct]) {
-            selectedScript = devices[m][d][st][ct][0] || '';
-        }
-    });
-
     const socket = io();
-    document.getElementById('run').addEventListener('click', () => {
-        const m = manufSelect.value;
-        const d = deviceSelect.value;
-        const st = siteTypeSelect.value;
-        const ct = configTypeSelect.value;
-        const csvLines = csvInput.value.split('\n')
-            .map(l => l.trim())
-            .filter(l => l)
-            .map(l => l.split(',')
-                .map(f => f.trim().replace(/\s+/g, '_'))
-                .join(','));
-        outputEl.textContent = '';
-        socket.emit('run_script', {
-            manufacturer: m,
-            device: d,
-            site_type: st,
-            config_type: ct,
-            script: selectedScript,
-            csv: csvLines
-        });
-    });
+    const outputEl = document.getElementById('output');
 
     socket.on('output', line => {
         outputEl.textContent += line;
@@ -186,6 +67,11 @@
     socket.on('finished', data => {
         outputEl.textContent += '\nProcess exited with ' + data.returncode;
         outputEl.scrollTop = outputEl.scrollHeight;
+    });
+
+    window.addEventListener('load', () => {
+        outputEl.textContent = '';
+        socket.emit('run_reset');
     });
     </script>
 </body>
