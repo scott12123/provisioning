@@ -42,12 +42,13 @@
 
     <div class="row g-3 mt-3">
         <div class="col-12">
-            <label for="csv_input" class="form-label">CSV Config (one per line)</label>
-            <textarea id="csv_input" class="form-control" rows="4" placeholder="name,ip,bridge,frequency"></textarea>
+            <h5>Device Config (CSV, one device per line)</h5>
+            <label id="csv_label" for="csv_input" class="form-label">Device Config (CSV, one device per line)</label>
+            <textarea id="csv_input" class="form-control" rows="4"></textarea>
         </div>
     </div>
 
-    <pre id="output" class="bg-dark text-white mt-4 p-3" style="height: 300px; overflow-y: auto;"></pre>
+    <pre id="output" class="bg-dark text-white mt-4 p-3" style="height: 600px; overflow-y: auto;"></pre>
 </div>
 
     <script>
@@ -92,11 +93,29 @@
     deviceSelect.addEventListener('change', () => {
         const m = manufSelect.value;
         const d = deviceSelect.value;
+
         resetSelect(siteTypeSelect);
         resetSelect(configTypeSelect);
         resetSelect(scriptSelect);
+
+        const csvLabel = document.getElementById('csv_label');
+        const csvInput = document.getElementById('csv_input');
+
         if (devices[m] && devices[m][d]) {
-            Object.keys(devices[m][d]).forEach(st => {
+            const deviceData = devices[m][d];
+
+            // ✅ Set CSV label and placeholder if format exists
+            if (deviceData.csv_format) {
+                csvLabel.textContent = `Device Config (CSV: ${deviceData.csv_format})`;
+                csvInput.placeholder = deviceData.csv_format;
+            } else {
+                csvLabel.textContent = "Device Config (CSV, one device per line)";
+                csvInput.placeholder = "name,ip,bridge,frequency";
+            }
+
+            // ✅ Populate site types, skipping "csv_format"
+            Object.keys(deviceData).forEach(st => {
+                if (st === "csv_format") return;  // skip non-site-type keys
                 const opt = document.createElement('option');
                 opt.value = st;
                 opt.textContent = st;
@@ -104,6 +123,7 @@
             });
         }
     });
+
 
     siteTypeSelect.addEventListener('change', () => {
         const m = manufSelect.value;

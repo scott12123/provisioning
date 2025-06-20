@@ -13,6 +13,7 @@
   },
   "Cambium": {
     "3000L": {
+      "csv_format": "DeviceName,IP,WifiBridge_X,Frequency",
       "nbn": {
         "sector": ["cambium/nbn/3000l.py"],
         "omni": ["cambium/nbn/3000l.py"]
@@ -23,6 +24,7 @@
       }
     },
     "XV2-22H": {
+      "csv_format": "Community,IP",
       "nbn": {
         "sector": ["sector"],
         "omni": ["omni"]
@@ -33,6 +35,7 @@
       }
     },
     "XV2-2T0": {
+      "csv_format": "Community,IP",
       "nbn": {
         "sector": ["sector"],
         "omni": ["omni"]
@@ -43,6 +46,7 @@
       }
     },
     "Force300-16": {
+      "csv_format": "DeviceName,IP",
       "nbn": {
         "P2P": ["sector"],
         "Remote": ["omni"]
