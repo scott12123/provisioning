@@ -24,3 +24,10 @@ and exit status to the console area.
 
 The actual script value is executed directly by the operating system, so it can
 be any shell command or script path available on the host.
+
+## Label printing
+
+When the **Print** button is used on the label printer page, the browser sends a
+`print_label` Socket.IO event containing the HTML for the label. The server
+saves the received HTML to `last_label.html` and replies with an `output` message
+showing the path. A final `finished` event indicates completion.

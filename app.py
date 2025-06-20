@@ -139,5 +139,28 @@ def run_reset():
     socketio.start_background_task(run_command, 'cambium/reset.py', sid)
 
 
+@socketio.on('print_label')
+def print_label(data):
+    """Save the provided HTML payload and notify the client."""
+    sid = request.sid
+    html = data.get('html', '') if isinstance(data, dict) else ''
+    if not isinstance(html, str):
+        socketio.emit('output', 'Invalid label payload\n', to=sid)
+        socketio.emit('finished', {'returncode': -1}, to=sid)
+        return
+
+    output_path = os.path.join(os.path.dirname(__file__), 'last_label.html')
+    try:
+        with open(output_path, 'w') as f:
+            f.write(html)
+        socketio.emit('output', f'Saved label to {output_path}\n', to=sid)
+        rc = 0
+    except Exception as exc:
+        socketio.emit('output', f'Error: {exc}\n', to=sid)
+        rc = -1
+
+    socketio.emit('finished', {'returncode': rc}, to=sid)
+
+
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000)
