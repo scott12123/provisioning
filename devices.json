@@ -16,7 +16,7 @@
       "csv_format": "DeviceName,IP,WifiBridge_X,Frequency",
       "Generic": {
         "Sector": ["cambium/nbn/3000l.py"],
-        "Sector": ["cambium/nbn/3000l.py"],
+        "Omni": ["cambium/nbn/3000l.py"],
         "Sector Spare": ["cambium/nbn/3000l.py"],
         "Omni Spare": ["cambium/nbn/3000l.py"]
       },
@@ -34,12 +34,12 @@
     "XV2-22H": {
       "csv_format": "Community,IP",
       "nbn": {
-        "sector": ["sector"],
-        "omni": ["omni"]
+        "Standard": ["cambium/nbn/xv2-22h.py"],
+        "Generic Spare": ["sector"]
       },
       "rcp": {
-        "sector": ["sector"],
-        "omni": ["omni"]
+        "Standard": ["sector"],
+        "Generic Spare": ["sector"]
       }
     },
     "XV2-2T0": {
