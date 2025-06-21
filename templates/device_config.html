@@ -63,7 +63,8 @@
             <textarea id="csv_input" class="form-control" rows="4"></textarea>
         </div>
         <div class="col-md-6">
-            <h5>Last Configured Devices</h5>
+            <h5>Configured Devices</h5>
+            <label class="form-label">Most recent configured devices</label>
             <ul id="recent_configs" class="list-group"></ul>
         </div>
     </div>
@@ -124,7 +125,7 @@
         if (devices[m] && devices[m][d]) {
             const deviceData = devices[m][d];
 
-            // ✅ Set CSV label and placeholder if format exists
+            // Set CSV label and placeholder if format exists
             if (deviceData.csv_format) {
                 csvLabel.textContent = `Device Config (CSV: ${deviceData.csv_format})`;
                 csvInput.placeholder = deviceData.csv_format;
@@ -133,7 +134,7 @@
                 csvInput.placeholder = "name,ip,bridge,frequency";
             }
 
-            // ✅ Populate site types, skipping "csv_format"
+            // Populate site types, skipping "csv_format"
             Object.keys(deviceData).forEach(st => {
                 if (st === "csv_format") return;  // skip non-site-type keys
                 const opt = document.createElement('option');
