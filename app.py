@@ -3,18 +3,66 @@ from flask_socketio import SocketIO
 import os
 import json
 import subprocess
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), 'devices.json')
+LOG_FILE = os.path.join(os.path.dirname(__file__), 'configured.json')
 
 
 def get_devices():
     """Load the device definition structure."""
     with open(DATA_FILE) as f:
         return json.load(f)
+
+
+def log_configuration(manufacturer, device, site_type, config_type, csv_line):
+    """Append a configuration record to LOG_FILE."""
+    record = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "manufacturer": manufacturer,
+        "device": device,
+        "site_type": site_type,
+        "config_type": config_type,
+        "csv": csv_line,
+    }
+    try:
+        if os.path.exists(LOG_FILE):
+            with open(LOG_FILE) as f:
+                data = json.load(f)
+        else:
+            data = []
+    except Exception:
+        data = []
+    data.append(record)
+    try:
+        with open(LOG_FILE, "w") as f:
+            json.dump(data, f)
+    except Exception:
+        pass
+
+
+def get_recent_configs(manufacturer, device, site_type, config_type, limit=10):
+    """Return the most recent configuration records for the given selection."""
+    if not os.path.exists(LOG_FILE):
+        return []
+    try:
+        with open(LOG_FILE) as f:
+            data = json.load(f)
+    except Exception:
+        return []
+    filtered = [
+        r for r in data
+        if r.get("manufacturer") == manufacturer
+        and r.get("device") == device
+        and r.get("site_type") == site_type
+        and r.get("config_type") == config_type
+    ]
+    filtered.sort(key=lambda r: r.get("timestamp"), reverse=True)
+    return filtered[:limit]
 
 def run_command(script_path, sid):
     """Run a Python script and stream each output line back to the client."""
@@ -75,6 +123,17 @@ def device_config():
     devices = get_devices()
     return render_template('device_config.html', devices=devices)
 
+
+@app.route('/recent-configs')
+def recent_configs():
+    """Return recent configuration records as JSON."""
+    m = request.args.get('manufacturer')
+    d = request.args.get('device')
+    st = request.args.get('site_type')
+    ct = request.args.get('config_type')
+    records = get_recent_configs(m, d, st, ct)
+    return {'configs': records}
+
 @app.route('/device-reset')
 def device_reset():
     """Display the device configuration page."""
@@ -130,6 +189,9 @@ def run_script(data):
         f"Running {script} for {manufacturer} {device} ({site_type}/{config_type})\n",
         to=sid,
     )
+
+    for line in csv_lines:
+        log_configuration(manufacturer, device, site_type, config_type, line)
 
     if csv_lines:
         socketio.start_background_task(run_commands, script, csv_lines, sid)
