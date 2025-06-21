@@ -125,6 +125,7 @@
                 deviceSelect.appendChild(opt);
             });
         }
+        loadAllConfigs();
     });
 
     deviceSelect.addEventListener('change', () => {
@@ -159,6 +160,7 @@
                 siteTypeSelect.appendChild(opt);
             });
         }
+        loadAllConfigs();
     });
 
 
@@ -176,7 +178,21 @@
                 configTypeSelect.appendChild(opt);
             });
         }
+        loadAllConfigs();
     });
+
+    function formatTs(ts) {
+        if (ts === undefined || ts === null) return '';
+        if (typeof ts === 'string') {
+            const d = new Date(ts);
+            if (!isNaN(d)) {
+                return d.toLocaleDateString('en-GB') + ' ' + d.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', hour12:false});
+            }
+            ts = parseInt(ts, 10);
+        }
+        const d = new Date(Number(ts) * 1000);
+        return d.toLocaleDateString('en-GB') + ' ' + d.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', hour12:false});
+    }
 
     function loadRecent() {
         const m = manufSelect.value;
@@ -195,7 +211,7 @@
                 (data.configs || []).forEach(item => {
                     const li = document.createElement('li');
                     li.className = 'list-group-item';
-                    li.textContent = `${item.timestamp}: ${item.csv}`;
+                    li.textContent = `${formatTs(item.timestamp)}: ${item.csv}`;
                     list.appendChild(li);
                 });
             });
@@ -211,6 +227,7 @@
             selectedScript = devices[m][d][st][ct][0] || '';
         }
         loadRecent();
+        loadAllConfigs();
     });
 
     const socket = io();
@@ -250,7 +267,18 @@
 
     let configsTable;
     function loadAllConfigs() {
-        fetch('/all-configs')
+        const m = manufSelect.value;
+        const d = deviceSelect.value;
+        const st = siteTypeSelect.value;
+        const ct = configTypeSelect.value;
+        if (!m || !d || !st || !ct) {
+            if (configsTable) {
+                configsTable.clear().draw();
+            }
+            return;
+        }
+        const params = `manufacturer=${encodeURIComponent(m)}&device=${encodeURIComponent(d)}&site_type=${encodeURIComponent(st)}&config_type=${encodeURIComponent(ct)}`;
+        fetch(`/all-configs?${params}`)
             .then(r => r.json())
             .then(data => {
                 if (configsTable) {
@@ -259,7 +287,7 @@
                     configsTable = $('#all_configs').DataTable({
                         data: data.configs || [],
                         columns: [
-                            { data: 'timestamp' },
+                            { data: 'timestamp', render: data => formatTs(data) },
                             { data: 'manufacturer' },
                             { data: 'device' },
                             { data: 'site_type' },

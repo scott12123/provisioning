@@ -22,7 +22,7 @@ def get_devices():
 def log_configuration(manufacturer, device, site_type, config_type, csv_line):
     """Append a configuration record to LOG_FILE."""
     record = {
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": int(datetime.utcnow().timestamp()),
         "manufacturer": manufacturer,
         "device": device,
         "site_type": site_type,
@@ -137,7 +137,12 @@ def recent_configs():
 
 @app.route('/all-configs')
 def all_configs():
-    """Return all configuration records as JSON."""
+    """Return configuration records as JSON, optionally filtered."""
+    m = request.args.get('manufacturer')
+    d = request.args.get('device')
+    st = request.args.get('site_type')
+    ct = request.args.get('config_type')
+
     if not os.path.exists(LOG_FILE):
         return {'configs': []}
     try:
@@ -145,6 +150,16 @@ def all_configs():
             data = json.load(f)
     except Exception:
         data = []
+
+    if all([m, d, st, ct]):
+        data = [
+            r for r in data
+            if r.get('manufacturer') == m
+            and r.get('device') == d
+            and r.get('site_type') == st
+            and r.get('config_type') == ct
+        ]
+
     data.sort(key=lambda r: r.get('timestamp'), reverse=True)
     return {'configs': data}
 
