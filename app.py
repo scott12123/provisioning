@@ -40,7 +40,7 @@ def log_configuration(manufacturer, device, site_type, config_type, csv_line):
     data.append(record)
     try:
         with open(LOG_FILE, "w") as f:
-            json.dump(data, f)
+            json.dump(data, f, indent=2)
     except Exception:
         pass
 
@@ -131,8 +131,22 @@ def recent_configs():
     d = request.args.get('device')
     st = request.args.get('site_type')
     ct = request.args.get('config_type')
-    records = get_recent_configs(m, d, st, ct)
+    records = get_recent_configs(m, d, st, ct, limit=3)
     return {'configs': records}
+
+
+@app.route('/all-configs')
+def all_configs():
+    """Return all configuration records as JSON."""
+    if not os.path.exists(LOG_FILE):
+        return {'configs': []}
+    try:
+        with open(LOG_FILE) as f:
+            data = json.load(f)
+    except Exception:
+        data = []
+    data.sort(key=lambda r: r.get('timestamp'), reverse=True)
+    return {'configs': data}
 
 @app.route('/device-reset')
 def device_reset():
