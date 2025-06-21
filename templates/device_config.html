@@ -288,7 +288,7 @@
                 const headerRow = document.createElement('tr');
                 const columns = [
                     { data: 'timestamp', title: 'Timestamp', render: d => formatTs(d) },
-                    { data: 'config_type', title: 'Config type' }
+                    { data: 'config_type', title: 'Config Type' }
                 ];
 
                 const thTs = document.createElement('th');
@@ -296,7 +296,7 @@
                 headerRow.appendChild(thTs);
 
                 const thCt = document.createElement('th');
-                thCt.textContent = 'Config type';
+                thCt.textContent = 'Config Type';
                 headerRow.appendChild(thCt);
 
                 csvHeaders.forEach((h, idx) => {
