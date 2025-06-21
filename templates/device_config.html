@@ -57,10 +57,14 @@
     </div>
 
     <div class="row g-3 mt-3">
-        <div class="col-12">
+        <div class="col-md-6">
             <h5>Device Config (CSV, one device per line)</h5>
             <label id="csv_label" for="csv_input" class="form-label">Device Config (CSV, one device per line)</label>
             <textarea id="csv_input" class="form-control" rows="4"></textarea>
+        </div>
+        <div class="col-md-6">
+            <h5>Last Configured Devices</h5>
+            <ul id="recent_configs" class="list-group"></ul>
         </div>
     </div>
 
@@ -157,6 +161,29 @@
         }
     });
 
+    function loadRecent() {
+        const m = manufSelect.value;
+        const d = deviceSelect.value;
+        const st = siteTypeSelect.value;
+        const ct = configTypeSelect.value;
+        const list = document.getElementById('recent_configs');
+        if (!m || !d || !st || !ct) {
+            list.innerHTML = '';
+            return;
+        }
+        fetch(`/recent-configs?manufacturer=${encodeURIComponent(m)}&device=${encodeURIComponent(d)}&site_type=${encodeURIComponent(st)}&config_type=${encodeURIComponent(ct)}`)
+            .then(r => r.json())
+            .then(data => {
+                list.innerHTML = '';
+                (data.configs || []).forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item';
+                    li.textContent = `${item.timestamp}: ${item.csv}`;
+                    list.appendChild(li);
+                });
+            });
+    }
+
     configTypeSelect.addEventListener('change', () => {
         const m = manufSelect.value;
         const d = deviceSelect.value;
@@ -166,6 +193,7 @@
         if (devices[m] && devices[m][d] && devices[m][d][st] && devices[m][d][st][ct]) {
             selectedScript = devices[m][d][st][ct][0] || '';
         }
+        loadRecent();
     });
 
     const socket = io();
@@ -199,6 +227,7 @@
     socket.on('finished', data => {
         outputEl.textContent += '\nProcess exited with ' + data.returncode;
         outputEl.scrollTop = outputEl.scrollHeight;
+        loadRecent();
     });
     </script>
 </body>
