@@ -24,9 +24,9 @@ if len(sys.argv) < 2:
 fields = sys.argv[1].split(',')
 
 try:
-    community_name, device_name, ip_address = fields
+    device_name, ip_address = fields
 except ValueError:
-    print("Expected 3 fields: community_name, device_name, ip")
+    print("Expected 3 fields: device_name, ip")
     sys.exit(1)
 
 def handle_prompts(conn, command, timeout=600):
@@ -65,7 +65,7 @@ else:
         quit()
 
 #community_name = input("Enter Community Name: ")
-community_name = community_name.replace(" ", "_")
+#community_name = community_name.replace(" ", "_")
 #device_name = input("Enter Device Name: ")
 #ip_address = input("Enter IP Address: ")
 
@@ -74,9 +74,9 @@ config_pi_ip = '192.168.0.50'
 pi_username = 'pi'
 pi_password = 'raspberry'
 current_time = int(time.time())
-source = '/mnt/usbstick/templates/rcp3-Generic-XV2-2T0-IP-10.255.0.213_v3.0.txt'
+source = '/mnt/usbstick/templates/RCP-Generic-XV2-IP-10.255.0.213.txt'
 dest = f"/mnt/usbstick/rcp3/{device_name}-{ip_address}_{current_time}.txt"
-command = f"sudo cp {source} {dest} && sudo sed -i 's/10.255.0.213/{ip_address}/g' {dest} && sudo sed -i 's/GEN_XV2_APX_IP0_213/{device_name}/g' {dest} && sudo sed -i 's/ssid \[Community\]_/ssid {community_name}_/g' {dest}"
+command = f"sudo cp {source} {dest} && sudo sed -i 's/10.255.0.213/{ip_address}/g' {dest} && sudo sed -i 's/Generic_XV2_APX_IPX_X/{device_name}/g' {dest}"
 index = dest.find("usbstick/")
 dest_config = dest[index + len("usbstick/"):]
 custom_config = f"tftp://192.168.0.50/{dest_config}"

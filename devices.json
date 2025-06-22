@@ -43,7 +43,7 @@
       }
     },
     "XV2-2T0": {
-      "csv_format": "Community,Device_Name,IP",
+      "csv_format": "Device_Name,IP",
       "nbn": {
        "Incomplete": ["sector"]
       },
