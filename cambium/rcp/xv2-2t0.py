@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import paramiko
+import pyautogui
 from ping3 import ping, verbose_ping
 import time
 import os
@@ -123,6 +124,7 @@ while True:
         time.sleep(5)
         print("Updating configuration file")
         print("Press enter key to apply")
+        pyautogui.press('enter')
         print ('\a') #Play alert bell
         config_response = handle_prompts(conn, second_command)
         print(config_response.stdout)
