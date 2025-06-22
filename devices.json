@@ -43,14 +43,12 @@
       }
     },
     "XV2-2T0": {
-      "csv_format": "Community,IP",
+      "csv_format": "Community,Device_Name,IP",
       "nbn": {
-        "sector": ["sector"],
-        "omni": ["omni"]
+       "Incomplete": ["sector"]
       },
       "rcp": {
-        "sector": ["sector"],
-        "omni": ["omni"]
+        "Standard": ["cambium/rcp/xv2-2t0.py"]
       }
     },
     "Force300-16": {
