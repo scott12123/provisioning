@@ -177,7 +177,7 @@ print_v1.pass_label(device_name,ip_address,f"PASS {date}")
 
 print (Fore.MAGENTA + "***********************************************Finished!***********************************************")
 
-#Play alert bell
+""" #Play alert bell
 print ('\a')
 time.sleep(1)
 print ('\a')
@@ -199,4 +199,4 @@ while True:
     print(Fore.RED + "192.168.0.1 not responding...")
     if returncode == 0:
         os.execl(sys.executable, sys.executable, *sys.argv)
-    print(Fore.MAGENTA + "Plug another XV2 in or press ctrl+z to quit.... checking again")
+    print(Fore.MAGENTA + "Plug another XV2 in or press ctrl+z to quit.... checking again") """
