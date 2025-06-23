@@ -48,7 +48,8 @@
        "Incomplete": ["sector"]
       },
       "rcp": {
-        "Standard": ["cambium/rcp/xv2-2t0.py"]
+        "Standard": ["cambium/rcp/xv2-2t0.py"],
+        "Spare": ["cambium/rcp/xv2-2t0.py","Generic_XV2_APX_IPX_X","10.255.0.213"]
       }
     },
     "Force300-16": {
