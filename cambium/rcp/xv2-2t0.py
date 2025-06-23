@@ -111,7 +111,7 @@ while True:
         # the user to press Enter after the config import.
         enter_responder = Responder(
             pattern=r"Please reboot the device to apply the imported configuration\? \(y/n\):",
-            response="\n",
+            response="y\n",
         )
         handle_prompts(conn, second_command, watchers=[enter_responder])
         print("Updated Config")
@@ -134,7 +134,7 @@ while True:
         print("Updating configuration file")
         enter_responder = Responder(
             pattern=r"Please reboot the device to apply the imported configuration\? \(y/n\):",
-            response="\n",
+            response="y\n",
         )
         config_response = handle_prompts(conn, second_command, watchers=[enter_responder])
         print("Updated Config")
