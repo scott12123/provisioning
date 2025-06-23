@@ -31,15 +31,9 @@ except ValueError:
     print("Expected 3 fields: device_name, ip")
     sys.exit(1)
 
-def handle_prompts(conn, command, timeout=600, watchers=None):
-            result = conn.run(
-                f"{command}",
-                pty=True,
-                hide=False,
-                timeout=timeout,
-                watchers=watchers,
-            )
-            return result
+def handle_prompts(conn, command, timeout=600):
+    result = conn.run(f"{command}", pty=False, hide=False, timeout=timeout)
+    return result
 
 hostname = "192.168.0.1"
 username = "admin"
@@ -113,16 +107,16 @@ while True:
         # Automatically continue past the CLI prompt that normally requires
         # the user to press Enter. We spawn a dummy read command and send a
         # newline to it which simulates the key press.
-   #     proc = subprocess.Popen(['bash', '-c', 'read -p "Press Enter to continue..."'], stdin=subprocess.PIPE)
-   #     proc.stdin.write(b'\n')
-   #     proc.stdin.flush()
-   #     handle_prompts(conn, second_command)
-        enter_responder = Responder(
-            pattern=r"Press enter key to apply",
-            response="\n"
-        )
-        print('\a')  # Play alert bell
-        handle_prompts(conn, second_command, watchers=[enter_responder])
+        handle_prompts(conn, second_command)
+        proc = subprocess.Popen(['bash', '-c', 'read -p "Press Enter to continue..."'], stdin=subprocess.PIPE)
+        proc.stdin.write(b'\n')
+        proc.stdin.flush()
+  #      enter_responder = Responder(
+  #          pattern=r"Press enter key to apply",
+  #          response="\n"
+  #      )
+  #      print('\a')  # Play alert bell
+  #      handle_prompts(conn, second_command, watchers=[enter_responder])
         time.sleep(1) #Time delay to apply config before rebooting
         break
     else:
@@ -140,15 +134,15 @@ while True:
         print("Waiting 5s before uploading config")
         time.sleep(5)
         print("Updating configuration file")
-#        proc = subprocess.Popen(['bash', '-c', 'read -p "Press Enter to continue..."'], stdin=subprocess.PIPE)
-#        proc.stdin.write(b'\n')
-#        proc.stdin.flush()
-#        config_response = handle_prompts(conn, second_command)
-        enter_responder = Responder(
-            pattern=r"Press enter key to apply",
-            response="\n"
-        )
-        config_response = handle_prompts(conn, second_command, watchers=[enter_responder])
+        config_response = handle_prompts(conn, second_command)
+        proc = subprocess.Popen(['bash', '-c', 'read -p "Press Enter to continue..."'], stdin=subprocess.PIPE)
+        proc.stdin.write(b'\n')
+        proc.stdin.flush()
+#        enter_responder = Responder(
+#            pattern=r"Press enter key to apply",
+#            response="\n"
+#        )
+#        config_response = handle_prompts(conn, second_command, watchers=[enter_responder])
         print(config_response.stdout)
         # Loop until 'Error' is not found in the output
         while 'Error' in config_response.stdout:
