@@ -38,8 +38,8 @@
         "Generic Spare": ["sector"]
       },
       "rcp": {
-        "Standard": ["sector"],
-        "Generic Spare": ["sector"]
+        "Standard": ["cambium/rcp/xv2-22h.py"],
+        "Spare": ["cambium/rcp/xv2-22h.py","Generic_XV2-22H_APX_IPX_X, 10.255.0.212"]
       }
     },
     "XV2-2T0": {
