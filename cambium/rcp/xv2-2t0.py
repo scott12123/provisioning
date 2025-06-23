@@ -108,6 +108,7 @@ while True:
         # the user to press Enter. We spawn a dummy read command and send a
         # newline to it which simulates the key press.
         handle_prompts(conn, second_command)
+        print("Updated Config")
         proc = subprocess.Popen(['bash', '-c', 'read -p "Press Enter to continue..."'], stdin=subprocess.PIPE)
         proc.stdin.write(b'\n')
         proc.stdin.flush()
@@ -130,11 +131,12 @@ while True:
         handle_prompts(conn, first_command)
 
         # Update config
-        second_command = f'import config {custom_config}'
+        second_command = f'import config {custom_config} && \n'
         print("Waiting 5s before uploading config")
         time.sleep(5)
         print("Updating configuration file")
         config_response = handle_prompts(conn, second_command)
+        print("Updated Config")
         proc = subprocess.Popen(['bash', '-c', 'read -p "Press Enter to continue..."'], stdin=subprocess.PIPE)
         proc.stdin.write(b'\n')
         proc.stdin.flush()
