@@ -128,7 +128,7 @@ while True:
         handle_prompts(conn, first_command)
 
         # Update config
-        second_command = f'import config {custom_config} && \n'
+        second_command = f'import config {custom_config}'
         print("Waiting 5s before uploading config")
         time.sleep(5)
         print("Updating configuration file")
