@@ -110,7 +110,7 @@ while True:
         # Automatically continue past the CLI prompt that normally requires
         # the user to press Enter after the config import.
         enter_responder = Responder(
-            pattern=r"Press enter key to apply",
+            pattern=r"Please reboot the device to apply the imported configuration\? \(y/n\):",
             response="\n",
         )
         handle_prompts(conn, second_command, watchers=[enter_responder])
@@ -133,7 +133,7 @@ while True:
         time.sleep(5)
         print("Updating configuration file")
         enter_responder = Responder(
-            pattern=r"Press enter key to apply",
+            pattern=r"Please reboot the device to apply the imported configuration\? \(y/n\):",
             response="\n",
         )
         config_response = handle_prompts(conn, second_command, watchers=[enter_responder])
