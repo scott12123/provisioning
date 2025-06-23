@@ -45,7 +45,8 @@
     "XV2-2T0": {
       "csv_format": "Device_Name,IP",
       "nbn": {
-       "Incomplete": ["sector"]
+        "Standard": ["cambium/nbn/xv2-2t0.py"],
+        "Spare": ["cambium/nbn/xv2-2t0.py","Generic_XV2_APX_IPX_X, 10.255.0.213"]
       },
       "rcp": {
         "Standard": ["cambium/rcp/xv2-2t0.py"],
