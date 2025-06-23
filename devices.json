@@ -12,31 +12,8 @@
     }
   },
   "Cambium": {
-    "3000L": {
-      "csv_format": "DeviceName,IP,WifiBridge_X,Frequency",
-      "Generic": {
-        "Sector": ["cambium/nbn/3000l.py"],
-        "Omni": ["cambium/nbn/3000l.py"],
-        "Sector Spare": ["cambium/nbn/3000l.py"],
-        "Omni Spare": ["cambium/nbn/3000l.py"]
-      },
-      "nbn": {
-        "Sector": ["cambium/nbn/3000l.py"],
-        "Omni": ["cambium/nbn/3000l.py"],
-        "Sector Spare": ["cambium/nbn/3000l.py"],
-        "Omni Spare": ["cambium/nbn/3000l.py"]
-      },
-      "rcp": {
-        "sector": ["cambium/rcp/3000l.py"],
-        "omni": ["cambium/rcp/3000l.py"]
-      }
-    },
     "XV2-22H": {
       "csv_format": "Community,IP",
-      "nbn": {
-        "Standard": ["cambium/nbn/xv2-22h.py"],
-        "Generic Spare": ["sector"]
-      },
       "rcp": {
         "Standard": ["cambium/rcp/xv2-22h.py"],
         "Spare": ["cambium/rcp/xv2-22h.py","Generic_XV2-22H_APX_IPX_X, 10.255.0.212"]
@@ -53,15 +30,10 @@
         "Spare": ["cambium/rcp/xv2-2t0.py","Generic_XV2_APX_IPX_X, 10.255.0.213"]
       }
     },
-    "Force300-16": {
-      "csv_format": "DeviceName,IP",
-      "nbn": {
-        "P2P": ["sector"],
-        "Remote": ["omni"]
-      },
+    "Force300-25": {
+      "csv_format": "CommunityName,DeviceName,IP",
       "rcp": {
-        "P2P": ["sector"],
-        "Remote": ["omni"]
+        "AP Remote": ["cambium/rcp/f300-25-ap-remote.py"]
       }
     }
   }
