@@ -142,11 +142,11 @@ while True:
             response="y\r",
         )
         config_response = handle_prompts(conn, second_command, watchers=[enter_responder])
-        print("Updated Config")
+        #print("Updated Config")
         time.sleep(5) #Wait for reboot to begin before starting ping
-        print("Reminder to turn printer on - make sure 'Editor Lite' LED is off")
-        time.sleep(5) #Wait for reboot to begin before starting ping
-        print(config_response.stdout)
+        #print("Reminder to turn printer on - make sure 'Editor Lite' LED is off")
+        #time.sleep(5) #Wait for reboot to begin before starting ping
+        #print(config_response.stdout)
         # Loop until 'Error' is not found in the output
         while 'Error' in config_response.stdout:
             print("Error uploading configuration!")
