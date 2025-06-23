@@ -104,8 +104,16 @@ while True:
         # Update config
         second_command = f'import config {custom_config}'
         print("Updating configuration file")
-        print("Press enter key to apply")
-        print ('\a') #Play alert bell
+        # Automatically continue past the CLI prompt that normally requires
+        # the user to press Enter. We spawn a dummy read command and send a
+        # newline to it which simulates the key press.
+        proc = subprocess.Popen(
+            ['bash', '-c', 'read -p "Press Enter to continue..."'],
+            stdin=subprocess.PIPE
+        )
+        proc.stdin.write(b'\n')
+        proc.stdin.flush()
+        print('\a')  # Play alert bell
         handle_prompts(conn, second_command)
         time.sleep(1) #Time delay to apply config before rebooting
         break
