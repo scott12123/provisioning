@@ -383,8 +383,10 @@ if '1' in cnmenabled:
 else:
       print (Fore.RED + "CNMaestro is disabled!")
       quit()
-functions.insert_data("serial_number", serial_number)
-functions.insert_data("mac_address", mac_address)
+functions.append_to_last_record({
+    "serial_number": serial_number,
+    "mac_address": mac_address,
+})
 
 #Updating google spreadsheet RP3 Data
 #gsheet.add_to_sheet(serial_number, mac_address, device_name, ip_address, fwv, hardware, smc_ping)

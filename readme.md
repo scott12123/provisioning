@@ -50,4 +50,7 @@ functions.insert_data("serial_number", "abcd1234")
 
 # Or multiple fields at once
 functions.insert_data(serial="S1", mac="00:11:22:33:44:55")
+
+# Alternatively update the most recent entry
+functions.append_to_last_record({"serial_number": "abcd1234", "mac": "00:11:22:33:44:55"})
 ```
