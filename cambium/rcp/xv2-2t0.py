@@ -173,7 +173,8 @@ while True:
         # Reboot and apply firmware / config
         print("Rebooting")
         third_command = 'service boot backup-firmware'
-        handle_prompts(conn, third_command)
+        handle_prompts(conn, third_command, watchers=[enter_responder])
+    #    handle_prompts(conn, third_command)
         conn.close()
         time.sleep(3)
         print(Fore.GREEN + "Waiting for device to come back online...")
