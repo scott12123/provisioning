@@ -71,6 +71,21 @@ else:
         print("Check hardware model and that you're running the right config file")
         quit()
 
+#Fetch the MSN (SN)
+snsnmpd = os.popen('snmpget -v 2c -c public 192.168.0.1 .1.3.6.1.4.1.17713.22.1.1.1.4.0')
+snsnmp = snsnmpd.read()
+serial_number = re.findall(r'"(.*?)"', snsnmp)[0]
+
+#Fetch the ESN (MAC)
+macsnmpd = os.popen('snmpget -v 2c -c public 192.168.0.1 .1.3.6.1.4.1.17713.22.1.1.1.1.0')
+macsnmp = macsnmpd.read()
+esn = re.findall(r'"(.*?)"', macsnmp)[0]
+
+#Fetch the cambiumRadioMACAddress
+cambiumRadioMACAddress = os.popen('snmpget -v 2c -c public 192.168.0.1 .1.3.6.1.4.1.17713.22.1.2.1.2.0')
+cambiumRadioMACAddress_snmp = cambiumRadioMACAddress.read()
+cambiumRadioMACAddress = re.findall(r'"(.*?)"', cambiumRadioMACAddress_snmp)[0]
+
 #Create config file from base template
 config_pi_ip = '192.168.0.50'
 pi_username = 'pi'
@@ -151,3 +166,10 @@ current_date = datetime.now()
 date = current_date.strftime("%d/%m/%Y")
 print_v1.pass_label(device_name,ip_address,f"PASS {date}")
 print_v1.pass_label(device_name,ip_address,f"PASS {date}")
+
+
+functions.append_to_last_record({
+    "MSN": serial_number,
+    "ESN": esn,
+    "RadioMACAddress": cambiumRadioMACAddress,
+})
