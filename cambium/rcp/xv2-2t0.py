@@ -109,9 +109,14 @@ while True:
         print("Updating configuration file")
         # Automatically continue past the CLI prompt that normally requires
         # the user to press Enter after the config import.
+        # Some firmware versions format the reboot prompt slightly differently.
+        # Match any variation ending with "(y/n)" to ensure the automatic
+        # confirmation works reliably.
         enter_responder = Responder(
-            pattern=r"Please reboot the device to apply the imported configuration\? \(y/n\):",
-            response="y\n",
+            pattern=r"Please reboot the device to apply the imported configuration.*\(y/n\)",
+            # Send an explicit carriage return to ensure the confirmation
+            # actually triggers the reboot on all firmware versions.
+            response="y\r",
         )
         handle_prompts(conn, second_command, watchers=[enter_responder])
         print("Updated Config")
@@ -132,9 +137,13 @@ while True:
         print("Waiting 5s before uploading config")
         time.sleep(5)
         print("Updating configuration file")
+        # The prompt string occasionally differs slightly between firmware
+        # versions, so use a loose regex to match anything that ends with the
+        # standard "(y/n)" question.
         enter_responder = Responder(
-            pattern=r"Please reboot the device to apply the imported configuration\? \(y/n\):",
-            response="y\n",
+            pattern=r"Please reboot the device to apply the imported configuration.*\(y/n\)",
+            # Some devices require a carriage return instead of a newline.
+            response="y\r",
         )
         config_response = handle_prompts(conn, second_command, watchers=[enter_responder])
         print("Updated Config")
