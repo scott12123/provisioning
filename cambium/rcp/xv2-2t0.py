@@ -159,7 +159,7 @@ while True:
             config_response = handle_prompts(conn, second_command, watchers=[enter_responder])
             print(config_response.stdout)
 
-        print("Config upload successful!")
+        print("Config upload successful! Rebooting..")
         # if 'Error' in config_response.stdout:
         #         print("Error uploading configuration!")
         #         print("Waiting 10 seconds to see if this helps..")
@@ -170,20 +170,20 @@ while True:
         #                print("Upload failed")
         #                quit()
         # print("Config upload successful!")
-        time.sleep(1) #Time delay to apply config before rebooting
+        time.sleep(5) #Time delay to apply config before checking ping
         # Reboot and apply firmware / config
-        print("Rebooting")
-        third_command = 'service boot backup-firmware'
-        try:
+        #print("Rebooting")
+        #third_command = 'service boot backup-firmware'
+        #try:
             # The reboot command terminates the SSH session so use a short
             # timeout and ignore any resulting error.
-            fw_response = handle_prompts(conn, third_command, timeout=30)
-            print(fw_response.stdout)
-        except Exception as exc:
-            print(f"Reboot initiated: {exc}")
-        finally:
-            conn.close()
-        time.sleep(3)
+        #    fw_response = handle_prompts(conn, third_command, timeout=30)
+        #    print(fw_response.stdout)
+        #except Exception as exc:
+        #    print(f"Reboot initiated: {exc}")
+        #finally:
+        #    conn.close()
+        #time.sleep(3)
         print(Fore.GREEN + "Waiting for device to come back online...")
         print("Reminder to turn printer on - make sure 'Editor Lite' LED is off")
         time.sleep(10) #Wait for reboot to begin before starting ping
