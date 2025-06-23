@@ -229,7 +229,15 @@
     });
 
     const socket = io();
-    document.getElementById('run').addEventListener('click', () => {
+    const runBtn = document.getElementById('run');
+    let running = false;
+
+    runBtn.addEventListener('click', () => {
+        if (running) {
+            socket.emit('stop_script');
+            return;
+        }
+
         const m = manufSelect.value;
         const d = deviceSelect.value;
         const st = siteTypeSelect.value;
@@ -250,6 +258,10 @@
             script: selectedScript,
             csv: csvLines
         });
+        runBtn.textContent = 'Stop';
+        runBtn.classList.remove('btn-primary');
+        runBtn.classList.add('btn-danger');
+        running = true;
     });
 
     socket.on('output', line => {
@@ -266,6 +278,10 @@
         outputEl.textContent += msg;
         outputEl.scrollTop = outputEl.scrollHeight;
         statusEl.textContent = msg.trim();
+        runBtn.textContent = 'Run';
+        runBtn.classList.remove('btn-danger');
+        runBtn.classList.add('btn-primary');
+        running = false;
         loadRecent();
         loadAllConfigs();
     });

@@ -4,6 +4,7 @@ import os
 import json
 import subprocess
 from datetime import datetime
+from threading import Event
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
@@ -11,6 +12,9 @@ socketio = SocketIO(app)
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), 'devices.json')
 LOG_FILE = os.path.join(os.path.dirname(__file__), 'configured.json')
+
+# Track running processes by Socket.IO session ID
+RUNNING = {}
 
 
 def get_devices():
@@ -67,6 +71,11 @@ def get_recent_configs(manufacturer, device, site_type, config_type, limit=10):
 def run_command(script_path, sid):
     """Run a Python script and stream each output line back to the client."""
     cmd = f"python3 {script_path}"
+    entry = RUNNING.get(sid)
+    if not entry:
+        entry = {'stop_event': Event(), 'process': None}
+        RUNNING[sid] = entry
+    stop_evt = entry['stop_event']
     try:
         proc = subprocess.Popen(
             cmd,
@@ -75,20 +84,40 @@ def run_command(script_path, sid):
             stderr=subprocess.STDOUT,
             text=True,
         )
+        entry['process'] = proc
         for line in proc.stdout:
             socketio.emit('output', line, to=sid)
+            if stop_evt.is_set():
+                try:
+                    proc.terminate()
+                except Exception:
+                    pass
+                break
         returncode = proc.wait()
     except Exception as exc:
         socketio.emit('output', f"Error: {exc}\n", to=sid)
         returncode = -1
 
-    socketio.emit('finished', {'returncode': returncode}, to=sid)
+    RUNNING.pop(sid, None)
+    if stop_evt.is_set():
+        socketio.emit('output', 'Process terminated\n', to=sid)
+        socketio.emit('finished', {'returncode': -1}, to=sid)
+    else:
+        socketio.emit('finished', {'returncode': returncode}, to=sid)
 
 
 def run_commands(script, params_list, sid):
     """Run a script for each parameter entry in params_list."""
+    entry = RUNNING.get(sid)
+    if not entry:
+        entry = {'stop_event': Event(), 'process': None}
+        RUNNING[sid] = entry
+    stop_evt = entry['stop_event']
+
     last_rc = 0
     for params in params_list:
+        if stop_evt.is_set():
+            break
         cmd = f"python3 {script} {params}"
         socketio.emit('output', f"\n> {cmd}\n", to=sid)
         try:
@@ -99,17 +128,29 @@ def run_commands(script, params_list, sid):
                 stderr=subprocess.STDOUT,
                 text=True,
             )
+            entry['process'] = proc
             for line in proc.stdout:
                 socketio.emit('output', line, to=sid)
+                if stop_evt.is_set():
+                    try:
+                        proc.terminate()
+                    except Exception:
+                        pass
+                    break
             last_rc = proc.wait()
         except Exception as exc:
             socketio.emit('output', f"Error: {exc}\n", to=sid)
             last_rc = -1
             break
-        if last_rc != 0:
+        if last_rc != 0 or stop_evt.is_set():
             break
 
-    socketio.emit('finished', {'returncode': last_rc}, to=sid)
+    RUNNING.pop(sid, None)
+    if stop_evt.is_set():
+        socketio.emit('output', 'Process terminated\n', to=sid)
+        socketio.emit('finished', {'returncode': -1}, to=sid)
+    else:
+        socketio.emit('finished', {'returncode': last_rc}, to=sid)
 
 
 @app.route('/')
@@ -219,6 +260,9 @@ def run_script(data):
         to=sid,
     )
 
+    # Register running task for this session
+    RUNNING[sid] = {'stop_event': Event(), 'process': None}
+
     for line in csv_lines:
         log_configuration(manufacturer, device, site_type, config_type, line)
 
@@ -233,6 +277,7 @@ def run_reset():
     """Run the Cambium reset script without any parameters."""
     sid = request.sid
     socketio.emit('output', 'Running cambium/reset.py\n', to=sid)
+    RUNNING[sid] = {'stop_event': Event(), 'process': None}
     socketio.start_background_task(run_command, 'cambium/reset.py', sid)
 
 @socketio.on('configure_tinys3')
@@ -240,6 +285,7 @@ def configure_tinys3():
     """Run the Cambium reset script without any parameters."""
     sid = request.sid
     socketio.emit('output', 'Running victron/tinys3_configuration.py\n', to=sid)
+    RUNNING[sid] = {'stop_event': Event(), 'process': None}
     socketio.start_background_task(run_command, 'victron/tinys3_configuration.py', sid)
 
 
@@ -264,6 +310,22 @@ def print_label(data):
         rc = -1
 
     socketio.emit('finished', {'returncode': rc}, to=sid)
+
+
+@socketio.on('stop_script')
+def stop_script():
+    """Terminate the currently running script for this session."""
+    sid = request.sid
+    entry = RUNNING.get(sid)
+    if not entry:
+        return
+    entry['stop_event'].set()
+    proc = entry.get('process')
+    if proc and proc.poll() is None:
+        try:
+            proc.terminate()
+        except Exception:
+            pass
 
 
 if __name__ == '__main__':
