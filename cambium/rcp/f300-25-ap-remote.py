@@ -327,16 +327,24 @@ snmptrap = functions.snmpgeta8(ip_address,".1.3.6.1.4.1.17713.21.3.5.6.0")
 if snmp_trap_community in snmptrap:
       functions.log(f"SNMP Trap Community 1 is correct - {device_name}","SNMP_ERROR")
 else:
-      functions.log(f"SNMP Trap Community 1 is wrong - {device_name}","SNMP_ERROR")
+      print (Fore.RED + "SNMP Trap Community is wrong")
 #running this twice to see if it gives error both times
 snmptrap = functions.snmpgeta8(ip_address,".1.3.6.1.4.1.17713.21.3.5.6.0")
 if snmp_trap_community in snmptrap:
       print (Fore.GREEN + "SNMP Trap Community is correct")
-      functions.log(f"SNMP Trap Community 2 is correct - {device_name}","SNMP_ERROR")
 else:
-      print (Fore.RED + "SNMP Trap Community is wrong!")
-      functions.log(f"SNMP Trap Community 2 is wrong - {device_name}","SNMP_ERROR")
-      quit()
+      print (Fore.RED + "SNMP Trap Community is still wrong!")
+      # Attempting to manually reapply the trap
+      print (Fore.RED + "Attempting to manually reapply the trap config")
+      os.system(f"snmpset -v 2c -c SNMP-RW-ACT1v8me {ip_address} .1.3.6.1.4.1.17713.21.3.5.6.0 s {snmp_trap_community} .1.3.6.1.4.1.17713.21.6.4.4.0 i 1")
+      print("Saving...")
+      time.sleep(10)
+      snmptrap = functions.snmpgeta8(ip_address,".1.3.6.1.4.1.17713.21.3.5.6.0")
+      if snmp_trap_community in snmptrap:
+        print (Fore.GREEN + "SNMP Trap Community is correct")
+      else:
+        print (Fore.RED + "SNMP Trap Community is still wrong after reconfig!")
+        quit()
 
 snmpname = functions.snmpgeta8(ip_address,".1.3.6.1.4.1.17713.21.3.5.3.0")
 if device_name in snmpname:
