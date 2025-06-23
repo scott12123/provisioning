@@ -93,6 +93,7 @@
     const siteTypeSelect = document.getElementById('site_type');
     const configTypeSelect = document.getElementById('config_type');
     const csvInput = document.getElementById('csv_input');
+    const csvLabel = document.getElementById('csv_label');
     const outputEl = document.getElementById('output');
     const statusEl = document.getElementById('status_line');
     let selectedScript = '';
@@ -105,6 +106,18 @@
         sel.appendChild(opt);
     }
 
+    function updateCsvInput(arr) {
+        if (arr && arr.length > 1) {
+            csvInput.value = arr.slice(1).join('\n');
+            csvInput.style.display = 'none';
+            csvLabel.style.display = 'none';
+        } else {
+            csvInput.value = '';
+            csvInput.style.display = '';
+            csvLabel.style.display = '';
+        }
+    }
+
     resetSelect(deviceSelect);
     resetSelect(siteTypeSelect);
     resetSelect(configTypeSelect);
@@ -115,6 +128,7 @@
         resetSelect(siteTypeSelect);
         resetSelect(configTypeSelect);
         selectedScript = '';
+        updateCsvInput(null);
         if (devices[m]) {
             Object.keys(devices[m]).forEach(d => {
                 const opt = document.createElement('option');
@@ -134,8 +148,6 @@
         resetSelect(configTypeSelect);
         selectedScript = '';
 
-        const csvLabel = document.getElementById('csv_label');
-        const csvInput = document.getElementById('csv_input');
 
         if (devices[m] && devices[m][d]) {
             const deviceData = devices[m][d];
@@ -168,6 +180,7 @@
         const st = siteTypeSelect.value;
         resetSelect(configTypeSelect);
         selectedScript = '';
+        updateCsvInput(null);
         if (devices[m] && devices[m][d] && devices[m][d][st]) {
             Object.keys(devices[m][d][st]).forEach(ct => {
                 const opt = document.createElement('option');
@@ -222,7 +235,11 @@
         const ct = configTypeSelect.value;
         selectedScript = '';
         if (devices[m] && devices[m][d] && devices[m][d][st] && devices[m][d][st][ct]) {
-            selectedScript = devices[m][d][st][ct][0] || '';
+            const arr = devices[m][d][st][ct];
+            selectedScript = arr[0] || '';
+            updateCsvInput(arr);
+        } else {
+            updateCsvInput(null);
         }
         loadRecent();
         loadAllConfigs();
