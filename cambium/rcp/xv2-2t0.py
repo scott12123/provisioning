@@ -34,7 +34,8 @@ except ValueError:
 def handle_prompts(conn, command, watchers=None, timeout=600):
     """Run a command on ``conn`` and automatically handle interactive prompts."""
     result = conn.run(
-        f"{command}", pty=True, hide=False, watchers=watchers, timeout=timeout
+        f"{command}", pty=True, hide=False, watchers=watchers,
+        timeout=timeout, warn=True
     )
     return result
 
@@ -173,10 +174,15 @@ while True:
         # Reboot and apply firmware / config
         print("Rebooting")
         third_command = 'service boot backup-firmware'
-        fw_response = handle_prompts(conn, third_command)
-        print(fw_response.stdout)
-    #    handle_prompts(conn, third_command)
-        conn.close()
+        try:
+            # The reboot command terminates the SSH session so use a short
+            # timeout and ignore any resulting error.
+            fw_response = handle_prompts(conn, third_command, timeout=30)
+            print(fw_response.stdout)
+        except Exception as exc:
+            print(f"Reboot initiated: {exc}")
+        finally:
+            conn.close()
         time.sleep(3)
         print(Fore.GREEN + "Waiting for device to come back online...")
         print("Reminder to turn printer on - make sure 'Editor Lite' LED is off")
