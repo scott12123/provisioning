@@ -23,7 +23,10 @@ return code is sent using the `finished` event. The browser appends the output
 and exit status to the console area.
 
 The actual script value is executed directly by the operating system, so it can
-be any shell command or script path available on the host.
+be any shell command or script path available on the host. While a script is
+running the **Run** button turns into a red **Stop** button. Clicking it sends a
+`stop_script` event to the server which terminates the running process and
+emits the final `finished` message.
 
 ## Label printing
 
