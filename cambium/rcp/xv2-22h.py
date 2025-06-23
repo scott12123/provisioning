@@ -6,6 +6,7 @@ import time
 import keyboard
 import os
 import sys
+import re
 from fabric import Connection
 from invoke import Responder
 sys.path.append('brother') #for label scripts
@@ -32,7 +33,6 @@ except ValueError:
     sys.exit(1)
 
 def handle_prompts(conn, command, watchers=None, timeout=600):
-    """Run a command on ``conn`` and automatically handle interactive prompts."""
     result = conn.run(
         f"{command}", pty=True, hide=False, watchers=watchers,
         timeout=timeout, warn=True
@@ -103,15 +103,8 @@ while True:
         # Update config
         second_command = f'import config {custom_config}'
         print("Updating configuration file")
-        # Automatically continue past the CLI prompt that normally requires
-        # the user to press Enter after the config import.
-        # Some firmware versions format the reboot prompt slightly differently.
-        # Match any variation ending with "(y/n)" to ensure the automatic
-        # confirmation works reliably.
         enter_responder = Responder(
             pattern=r"Please reboot the device to apply the imported configuration.*\(y/n\)",
-            # Send an explicit carriage return to ensure the confirmation
-            # actually triggers the reboot on all firmware versions.
             response="y\r",
         )
         handle_prompts(conn, second_command, watchers=[enter_responder])
@@ -119,8 +112,6 @@ while True:
         time.sleep(1) #Time delay to apply config before rebooting
         break
     else:
-        #print(firmware)
-        #print(Fore.RED + "Need to update to v6.6.0.3-r9")
         print(Fore.GREEN + "Updating firmware to v6.6.0.3-r9")
         
         #Update firmware
@@ -132,22 +123,13 @@ while True:
         second_command = f'import config {custom_config}'
         print("Updating configuration file")
         time.sleep(5)
-
-        # The prompt string occasionally differs slightly between firmware
-        # versions, so use a loose regex to match anything that ends with the
-        # standard "(y/n)" question.
         enter_responder = Responder(
             pattern=r"Please reboot the device to apply the imported configuration.*\(y/n\)",
             # Some devices require a carriage return instead of a newline.
             response="y\r",
         )
         config_response = handle_prompts(conn, second_command, watchers=[enter_responder])
-        #print("Updated Config")
         time.sleep(5) #Wait for reboot to begin before starting ping
-        #print("Reminder to turn printer on - make sure 'Editor Lite' LED is off")
-        #time.sleep(5) #Wait for reboot to begin before starting ping
-        #print(config_response.stdout)
-        # Loop until 'Error' is not found in the output
         while 'Error' in config_response.stdout:
             print("Error uploading configuration!")
             print("Retrying in 1 second...")
@@ -158,31 +140,7 @@ while True:
             print(config_response.stdout)
 
         print("Config upload successful! Rebooting..")
-        # if 'Error' in config_response.stdout:
-        #         print("Error uploading configuration!")
-        #         print("Waiting 10 seconds to see if this helps..")
-        #         time.sleep(10)
-        #         config_response = handle_prompts(conn, second_command)
-        #         print(config_response.stdout)
-        #         if 'Error' in config_response.stdout:
-        #                print("Upload failed")
-        #                quit()
-        # print("Config upload successful!")
         time.sleep(5) #Time delay to apply config before checking ping
-        # Reboot and apply firmware / config
-        #print("Rebooting")
-        #third_command = 'service boot backup-firmware'
-        #try:
-            # The reboot command terminates the SSH session so use a short
-            # timeout and ignore any resulting error.
-        #    fw_response = handle_prompts(conn, third_command, timeout=30)
-        #    print(fw_response.stdout)
-        #except Exception as exc:
-        #    print(f"Reboot initiated: {exc}")
-        #finally:
-        #    conn.close()
-        #time.sleep(3)
-        #print(Fore.GREEN + "Waiting for device to come back online...")
         print("Reminder to turn printer on - make sure 'Editor Lite' LED is off")
         time.sleep(15) #Wait for reboot to begin before starting ping
         while True:
@@ -190,10 +148,8 @@ while True:
                 stdout, stderr = process.communicate()
                 returncode = process.returncode
                 if returncode == 0:
-                    #print (Fore.GREEN + f"{ip_address} online")
                     break
                 print(Fore.RED + f"{ip_address} not responding...")
-        #print (Fore.GREEN + f"XV2 back online as {device_name} at {ip_address}")
         break
 
 #Print labels for the devices
