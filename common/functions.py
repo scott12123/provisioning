@@ -3,6 +3,10 @@ import paramiko
 import os
 import time
 import datetime
+import json
+
+# Path to configured.json relative to this file
+LOG_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'configured.json')
 
 #common functions for ongoing use
 
@@ -208,3 +212,73 @@ def log(content, log_type):
         print("PermissionError: [Errno 13] Permission denied. Check file permissions.")
     except Exception as e:
         print(f"An error occurred: {e}")
+
+
+def insert_data(field_or_dict, value=None):
+    """Append custom fields to ``configured.json`` as individual records.
+
+    Examples::
+
+        insert_data("serial_number", "abcd1234")
+        insert_data(serial_number="abcd1234", mac="00:11:22")
+
+    Each key/value pair is stored as a separate JSON object with its own
+    timestamp.
+    """
+    timestamp = int(datetime.datetime.utcnow().timestamp())
+    if isinstance(field_or_dict, dict):
+        fields = field_or_dict
+    else:
+        fields = {field_or_dict: value}
+
+    try:
+        if os.path.exists(LOG_FILE):
+            with open(LOG_FILE) as f:
+                data = json.load(f)
+        else:
+            data = []
+    except Exception:
+        data = []
+
+    for key, val in fields.items():
+        data.append({"timestamp": timestamp, key: val})
+
+    try:
+        with open(LOG_FILE, "w") as f:
+            json.dump(data, f, indent=2)
+    except Exception:
+        pass
+
+
+def append_to_last_record(field_or_dict, value=None):
+    """Update the most recent configuration record with additional fields.
+
+    If ``configured.json`` has no records this falls back to :func:`insert_data`.
+    """
+    if isinstance(field_or_dict, dict):
+        fields = field_or_dict
+    else:
+        fields = {field_or_dict: value}
+
+    try:
+        if os.path.exists(LOG_FILE):
+            with open(LOG_FILE) as f:
+                data = json.load(f)
+        else:
+            data = []
+    except Exception:
+        data = []
+
+    if not data:
+        insert_data(fields)
+        return
+
+    record = data[-1]
+    record.update(fields)
+
+    try:
+        with open(LOG_FILE, "w") as f:
+            json.dump(data, f, indent=2)
+    except Exception:
+        pass
+

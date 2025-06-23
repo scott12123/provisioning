@@ -34,3 +34,23 @@ When the **Print** button is used on the label printer page, the browser sends a
 `print_label` Socket.IO event containing the HTML for the label. The server
 saves the received HTML to `last_label.html` and replies with an `output` message
 showing the path. A final `finished` event indicates completion.
+
+## Custom logging
+
+Scripts can append arbitrary data to `configured.json` using
+`common.functions.insert_data()`. Pass either a field name and value or any
+number of keyword arguments. Each field is stored as a separate entry with its
+own timestamp:
+
+```python
+from common import functions
+
+# Log a single field
+functions.insert_data("serial_number", "abcd1234")
+
+# Or multiple fields at once
+functions.insert_data(serial="S1", mac="00:11:22:33:44:55")
+
+# Alternatively update the most recent entry
+functions.append_to_last_record({"serial_number": "abcd1234", "mac": "00:11:22:33:44:55"})
+```
