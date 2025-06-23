@@ -3,6 +3,10 @@ import paramiko
 import os
 import time
 import datetime
+import json
+
+# Path to configured.json relative to this file
+LOG_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'configured.json')
 
 #common functions for ongoing use
 
@@ -208,3 +212,38 @@ def log(content, log_type):
         print("PermissionError: [Errno 13] Permission denied. Check file permissions.")
     except Exception as e:
         print(f"An error occurred: {e}")
+
+
+def insert_data(field_or_dict, value=None):
+    """Append custom fields to configured.json.
+
+    Examples:
+        insert_data("serial_number", "abcd1234")
+        insert_data(serial_number="abcd1234", mac="00:11:22")
+
+    Each field is stored as a separate JSON object with a timestamp.
+    """
+    timestamp = int(datetime.datetime.utcnow().timestamp())
+    if isinstance(field_or_dict, dict):
+        fields = field_or_dict
+    else:
+        fields = {field_or_dict: value}
+
+    try:
+        if os.path.exists(LOG_FILE):
+            with open(LOG_FILE) as f:
+                data = json.load(f)
+        else:
+            data = []
+    except Exception:
+        data = []
+
+    for key, val in fields.items():
+        data.append({"timestamp": timestamp, key: val})
+
+    try:
+        with open(LOG_FILE, "w") as f:
+            json.dump(data, f, indent=2)
+    except Exception:
+        pass
+
