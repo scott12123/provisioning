@@ -8,6 +8,9 @@ from PIL import Image, ImageDraw, ImageFont
 from brother_ql import BrotherQLRaster, create_label
 from brother_ql.backends.helpers import send
 import qrcode
+from pystrich.datamatrix import DataMatrixEncoder
+from barcode import get_barcode_class
+from barcode.writer import ImageWriter
 
 logging.basicConfig(level=logging.ERROR)
 
@@ -18,27 +21,43 @@ FONT_PATH = os.path.join(os.path.dirname(__file__), 'Roboto-Regular.ttf')
 LABEL_TYPE = '17x54'
 
 
-def build_image(text: str, qr: bool) -> Image.Image:
-    """Generate label image with optional QR code."""
+def build_image(text: str, barcode: str | None) -> Image.Image:
+    """Generate label image with optional barcode."""
     img = Image.new('L', (566, 165), color=255)
     draw = ImageDraw.Draw(img)
     font = ImageFont.truetype(FONT_PATH, 40)
     draw.text((5, 60), text, font=font, fill=0)
 
-    if qr:
+    if barcode == 'qr':
         qr_img = qrcode.make(text).resize((120, 120))
         img.paste(qr_img, (430, 20))
+    elif barcode == 'data_matrix':
+        encoder = DataMatrixEncoder(text)
+        dm_img = Image.open(BytesIO(encoder.get_imagedata()))
+        dm_img = dm_img.resize((120, 120))
+        img.paste(dm_img, (430, 20))
+    elif barcode == 'upc':
+        upc_cls = get_barcode_class('upc')
+        upc = upc_cls(text, writer=ImageWriter())
+        upc_img = upc.render(writer_options={'module_height': 50})
+        upc_img = upc_img.resize((120, 60))
+        img.paste(upc_img, (430, 50))
     return img
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Print a text label")
     parser.add_argument('--text', required=True, help='Text to print')
-    parser.add_argument('--qr', action='store_true', help='Print text as QR code')
+    parser.add_argument('--barcode', choices=['qr', 'data_matrix', 'upc'], help='Barcode type to include')
+    parser.add_argument('--qr', action='store_true', help=argparse.SUPPRESS)
     args = parser.parse_args()
 
+    barcode = args.barcode
+    if args.qr and not barcode:
+        barcode = 'qr'
+
     printer = BrotherQLRaster(DEFAULT_MODEL)
-    img = build_image(args.text, args.qr)
+    img = build_image(args.text, barcode)
     img_bytes = BytesIO()
     img.save(img_bytes, format='PNG')
     img_bytes.seek(0)
