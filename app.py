@@ -281,12 +281,18 @@ def run_reset():
     socketio.start_background_task(run_command, 'cambium/reset.py', sid)
 
 @socketio.on('configure_tinys3')
-def configure_tinys3():
-    """Run the Cambium reset script without any parameters."""
+def configure_tinys3(data=None):
+    """Run the TinyS3 configuration script with optional label printing."""
     sid = request.sid
-    socketio.emit('output', 'Running victron/tinys3_configuration.py\n', to=sid)
+    print_label = False
+    if isinstance(data, dict):
+        print_label = bool(data.get('print_label'))
+    script = 'victron/tinys3_configuration.py'
+    if print_label:
+        script += ' --print-label'
+    socketio.emit('output', f'Running {script}\n', to=sid)
     RUNNING[sid] = {'stop_event': Event(), 'process': None}
-    socketio.start_background_task(run_command, 'victron/tinys3_configuration.py', sid)
+    socketio.start_background_task(run_command, script, sid)
 
 
 @socketio.on('print_label')
