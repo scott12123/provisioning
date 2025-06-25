@@ -1,4 +1,7 @@
 from flask import Flask, render_template, request
+from io import BytesIO
+import base64
+from brother.print_label import build_image
 from flask_socketio import SocketIO
 import os
 import json
@@ -216,6 +219,21 @@ def label_printer():
     """Display the device configuration page."""
     devices = get_devices()
     return render_template('label_printer.html', devices=devices)
+
+
+@app.route('/label_preview', methods=['POST'])
+def label_preview():
+    """Return a base64 encoded preview image for the label."""
+    data = request.get_json() or {}
+    text = data.get('text', '')
+    barcode = data.get('barcode')
+    if not isinstance(text, str) or not text.strip():
+        return {'error': 'invalid text'}, 400
+    img = build_image(text, barcode)
+    buf = BytesIO()
+    img.save(buf, format='PNG')
+    encoded = base64.b64encode(buf.getvalue()).decode('ascii')
+    return {'image': encoded}
 
 @app.route('/telemetry_device')
 def telemetry_device():

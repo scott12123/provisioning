@@ -10,17 +10,17 @@
         body { background-color: #f8f9fa; }
         .card { border-radius: .5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         #preview {
-            width: 340px;
-            height: 70px;
+            width: 566px;
+            height: 165px;
             border: 1px dashed #6c757d;
-            font-family: 'Roboto', sans-serif;
-            font-size: 55px;
             display: flex;
             align-items: center;
-            padding-left: 20px;
-            overflow: hidden;
-            white-space: nowrap;
+            justify-content: center;
             background: #fff;
+        }
+        #preview img {
+            max-width: 100%;
+            max-height: 100%;
         }
     </style>
 </head>
@@ -32,21 +32,7 @@
     <h1 class="mb-4">Label Printer</h1>
     <div class="mb-3">
       <label class="form-label">Label Text</label>
-      <div class="btn-toolbar mb-2">
-        <button type="button" class="btn btn-outline-secondary me-2" id="bold_btn"><strong>B</strong></button>
-        <select id="font_size" class="form-select w-auto">
-          <option value="8">8px</option>
-          <option value="10" selected>10px</option>
-          <option value="12">12px</option>
-          <option value="14">14px</option>
-          <option value="16">16px</option>
-          <option value="30">30px</option>
-          <option value="40">40px</option>
-          <option value="50">50px</option>
-          <option value="60">60px</option>
-        </select>
-      </div>
-      <div id="label_text" class="form-control" contenteditable="true" style="min-height:70px;"></div>
+      <div id="label_text" class="form-control" contenteditable="true" style="min-height:70px; white-space:pre-wrap; word-break:break-word;"></div>
     </div>
     <div class="mb-3">
       <label class="form-label">Barcode Type</label>
@@ -54,7 +40,7 @@
         <option value="">None</option>
         <option value="qr">QR Code</option>
         <option value="data_matrix">Data Matrix</option>
-        <option value="upc">UPC</option>
+        <option value="code128">Code 128</option>
       </select>
     </div>
     <div class="mb-3">
@@ -74,26 +60,28 @@
 <script>
   const preview = document.getElementById('preview');
   const labelInput = document.getElementById('label_text');
-  const fontSize = document.getElementById('font_size');
-  const boldBtn = document.getElementById('bold_btn');
   const barcodeType = document.getElementById('barcode_type');
 
-  function updatePreview() {
-    preview.innerHTML = labelInput.innerHTML;
+  async function updatePreview() {
+    const resp = await fetch('/label_preview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: labelInput.innerText,
+        barcode: barcodeType.value || null
+      })
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      preview.innerHTML = `<img src="data:image/png;base64,${data.image}" />`;
+    } else {
+      preview.textContent = labelInput.innerText;
+    }
   }
 
   labelInput.addEventListener('input', updatePreview);
+  barcodeType.addEventListener('change', updatePreview);
 
-  boldBtn.addEventListener('click', () => {
-    document.execCommand('bold');
-    updatePreview();
-  });
-
-  fontSize.addEventListener('change', () => {
-    const size = fontSize.value + 'px';
-    labelInput.style.fontSize = size;
-    preview.style.fontSize = size;
-  });
 
   const socket = io();
   const outputEl = document.getElementById('output');
@@ -139,9 +127,9 @@
   });
 
   window.addEventListener('DOMContentLoaded', () => {
-    fontSize.dispatchEvent(new Event('change'));
     outputEl.textContent = '';
     statusEl.textContent = '';
+    updatePreview();
   });
 </script>
 </body>
