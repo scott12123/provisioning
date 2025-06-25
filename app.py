@@ -1,10 +1,14 @@
 from flask import Flask, render_template, request
+from io import BytesIO
+import base64
+from brother.print_label import build_image
 from flask_socketio import SocketIO
 import os
 import json
 import subprocess
 from datetime import datetime
 from threading import Event
+import shlex
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
@@ -216,6 +220,21 @@ def label_printer():
     devices = get_devices()
     return render_template('label_printer.html', devices=devices)
 
+
+@app.route('/label_preview', methods=['POST'])
+def label_preview():
+    """Return a base64 encoded preview image for the label."""
+    data = request.get_json() or {}
+    text = data.get('text', '')
+    barcode = data.get('barcode')
+    if not isinstance(text, str) or not text.strip():
+        return {'error': 'invalid text'}, 400
+    img = build_image(text, barcode)
+    buf = BytesIO()
+    img.save(buf, format='PNG')
+    encoded = base64.b64encode(buf.getvalue()).decode('ascii')
+    return {'image': encoded}
+
 @app.route('/telemetry_device')
 def telemetry_device():
     """Display the device configuration page."""
@@ -281,35 +300,42 @@ def run_reset():
     socketio.start_background_task(run_command, 'cambium/reset.py', sid)
 
 @socketio.on('configure_tinys3')
-def configure_tinys3():
-    """Run the Cambium reset script without any parameters."""
+def configure_tinys3(data=None):
+    """Run the TinyS3 configuration script with optional label printing."""
     sid = request.sid
-    socketio.emit('output', 'Running victron/tinys3_configuration.py\n', to=sid)
+    print_label = False
+    if isinstance(data, dict):
+        print_label = bool(data.get('print_label'))
+    script = 'victron/tinys3_configuration.py'
+    if print_label:
+        script += ' --print-label'
+    socketio.emit('output', f'Running {script}\n', to=sid)
     RUNNING[sid] = {'stop_event': Event(), 'process': None}
-    socketio.start_background_task(run_command, 'victron/tinys3_configuration.py', sid)
+    socketio.start_background_task(run_command, script, sid)
 
 
 @socketio.on('print_label')
 def print_label(data):
-    """Save the provided HTML payload and notify the client."""
+    """Run the label printing script with provided text."""
     sid = request.sid
-    html = data.get('html', '') if isinstance(data, dict) else ''
-    if not isinstance(html, str):
-        socketio.emit('output', 'Invalid label payload\n', to=sid)
+    text = data.get('text', '') if isinstance(data, dict) else ''
+    barcode = data.get('barcode') if isinstance(data, dict) else None
+    qr = bool(data.get('qr')) if isinstance(data, dict) else False
+
+    if not isinstance(text, str) or not text.strip():
+        socketio.emit('output', 'Invalid label text\n', to=sid)
         socketio.emit('finished', {'returncode': -1}, to=sid)
         return
 
-    output_path = os.path.join(os.path.dirname(__file__), 'last_label.html')
-    try:
-        with open(output_path, 'w') as f:
-            f.write(html)
-        socketio.emit('output', f'Saved label to {output_path}\n', to=sid)
-        rc = 0
-    except Exception as exc:
-        socketio.emit('output', f'Error: {exc}\n', to=sid)
-        rc = -1
+    script = f"brother/print_label.py --text {shlex.quote(text)}"
+    if barcode:
+        script += f" --barcode {shlex.quote(barcode)}"
+    elif qr:
+        script += " --qr"
 
-    socketio.emit('finished', {'returncode': rc}, to=sid)
+    socketio.emit('output', f'Running {script}\n', to=sid)
+    RUNNING[sid] = {'stop_event': Event(), 'process': None}
+    socketio.start_background_task(run_command, script, sid)
 
 
 @socketio.on('stop_script')
@@ -329,4 +355,4 @@ def stop_script():
 
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000)
+    socketio.run(app, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)

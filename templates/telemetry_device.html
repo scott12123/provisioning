@@ -26,9 +26,21 @@
 <body>
 {% set active_page = 'telemetry_device' %}
 {% include "header.html" %}
+{% set version = "v1.2"%}
 <div class="container py-5">
     <div class="card p-4">
         <h1 class="mb-4">Telemetry TinyS3 Configuration</h1>
+    <div class="mb-3">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="print_label" checked>
+            <label class="form-check-label" for="print_label">
+                Print Telemetry label after configuration
+            </label>
+        </div>
+    </div>
+    <div class="mb-3">
+        <button id="configure_btn" class="btn btn-primary">Configure {{ version }}</button>
+    </div>
     <div class="mt-3">
         <button class="btn btn-secondary mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#outputCollapse" aria-expanded="false" aria-controls="outputCollapse">Toggle Output</button>
         <div id="status_line" class="fw-bold mb-2"></div>
@@ -43,6 +55,9 @@
     const socket = io();
     const outputEl = document.getElementById('output');
     const statusEl = document.getElementById('status_line');
+    const printBox = document.getElementById('print_label');
+    const configureBtn = document.getElementById('configure_btn');
+    let running = false;
 
     socket.on('output', line => {
         outputEl.textContent += line;
@@ -58,12 +73,29 @@
         outputEl.textContent += msg;
         outputEl.scrollTop = outputEl.scrollHeight;
         statusEl.textContent = msg.trim();
+        configureBtn.textContent = 'Configure';
+        configureBtn.classList.remove('btn-danger');
+        configureBtn.classList.add('btn-primary');
+        running = false;
+    });
+
+    configureBtn.addEventListener('click', () => {
+        if (running) {
+            socket.emit('stop_script');
+            return;
+        }
+        outputEl.textContent = '';
+        statusEl.textContent = '';
+        socket.emit('configure_tinys3', { print_label: printBox.checked });
+        configureBtn.textContent = 'Stop';
+        configureBtn.classList.remove('btn-primary');
+        configureBtn.classList.add('btn-danger');
+        running = true;
     });
 
     window.addEventListener('load', () => {
         outputEl.textContent = '';
         statusEl.textContent = '';
-        socket.emit('configure_tinys3');
     });
     </script>
 </body>
