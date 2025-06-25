@@ -46,7 +46,7 @@
           <option value="60">60px</option>
         </select>
       </div>
-      <div id="label_text" class="form-control" contenteditable="true" style="min-height:70px;"></div>
+      <div id="label_text" class="form-control" contenteditable="true" style="min-height:70px; white-space:pre-wrap; word-break:break-word;"></div>
     </div>
     <div class="mb-3">
       <label class="form-label">Barcode Type</label>
@@ -106,6 +106,7 @@
   fontSize.addEventListener('change', () => {
     const size = fontSize.value + 'px';
     labelInput.style.fontSize = size;
+    updatePreview();
   });
 
   const socket = io();
