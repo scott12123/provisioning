@@ -28,6 +28,7 @@ def print_label(mac):
     if type == 'device':
         line1 = f"MAC: {mac}"
         line2 = "Passed " + datetime.datetime.now().strftime("%d/%m/%Y")
+        line3 = "V1.2"
 
 
     qr = qrcode.QRCode(version=1,
@@ -46,14 +47,16 @@ def print_label(mac):
 
     # Use a TrueType font
     font_path = '/home/pi/provisioningpi/brother/Roboto-Regular.ttf'
-    font_size = 50
+    font_size = 40
     font = ImageFont.truetype(font_path, font_size)
     mac_font = ImageFont.truetype(font_path, 35)
     # Calculate text position and rotation for landscape
-    text_position_line1 = (5, 10)
-    text_position_line2 = (5, 70)
+    text_position_line1 = (5, 5)
+    text_position_line2 = (5, 40)
+    text_position_line3 = (5, 80)
     draw.text(text_position_line1, line1, font=font, fill=0)
     draw.text(text_position_line2, line2, font=font, fill=0)
+    draw.text(text_position_line3, line3, font=font, fill=0)
     qr_position = (450, 60)
     img.paste(qr_img, qr_position)
     # Save image to a BytesIO object
