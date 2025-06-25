@@ -113,12 +113,17 @@ def build_image(text: str, barcode: Optional[str]) -> Image.Image:
         ).convert('L')
 
         bar_x = (img.width - bc_img.width) // 2
-        bar_y = (img.height - bc_img.height - text_h) // 2
-        img.paste(bc_img, (bar_x, bar_y))
-
         text_w = draw.textlength(text, font=bar_font)
         text_x = (img.width - text_w) // 2
-        draw.text((text_x, bar_y + bc_img.height + 2), text, font=bar_font, fill=0)
+
+        # Position the barcode so the accompanying text sits at the bottom
+        # of the label.  A small 2px gap is kept between the barcode and the
+        # text for readability.
+        text_y = img.height - text_h - 2
+        bar_y = text_y - bc_img.height
+        img.paste(bc_img, (bar_x, bar_y))
+
+        draw.text((text_x, text_y), text, font=bar_font, fill=0)
         return img
 
     return img
