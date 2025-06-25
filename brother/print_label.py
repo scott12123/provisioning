@@ -40,10 +40,18 @@ def build_image(text: str, barcode: Optional[str]) -> Image.Image:
     elif barcode == 'upc':
         upc_cls = get_barcode_class('upc')
         upc = upc_cls(text, writer=ImageWriter())
+        
         upc_img = upc.render(writer_options={'module_height': 50})
-        upc_img = upc_img.resize((240, 120))
-        img.paste(upc_img, (430, 50))
-    return img
+
+        # Get original dimensions
+        width, height = upc_img.size
+
+        # Double the size
+        upc_img = upc_img.resize((width * 2, height * 2), Image.ANTIALIAS)
+
+        # Adjust paste position if needed
+        img.paste(upc_img, (430, 20))
+        return img
 
 
 def main() -> None:
