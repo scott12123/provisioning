@@ -308,7 +308,7 @@ def print_label(data):
         socketio.emit('finished', {'returncode': -1}, to=sid)
         return
 
-    script = f"print_label.py --text {shlex.quote(text)}"
+    script = f"brother/print_label.py --text {shlex.quote(text)}"
     if qr:
         script += " --qr"
 
