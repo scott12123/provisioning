@@ -301,6 +301,7 @@ def print_label(data):
     """Run the label printing script with provided text."""
     sid = request.sid
     text = data.get('text', '') if isinstance(data, dict) else ''
+    barcode = data.get('barcode') if isinstance(data, dict) else None
     qr = bool(data.get('qr')) if isinstance(data, dict) else False
 
     if not isinstance(text, str) or not text.strip():
@@ -309,7 +310,9 @@ def print_label(data):
         return
 
     script = f"brother/print_label.py --text {shlex.quote(text)}"
-    if qr:
+    if barcode:
+        script += f" --barcode {shlex.quote(barcode)}"
+    elif qr:
         script += " --qr"
 
     socketio.emit('output', f'Running {script}\n', to=sid)

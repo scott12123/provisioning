@@ -48,9 +48,14 @@
       </div>
       <div id="label_text" class="form-control" contenteditable="true" style="min-height:70px;"></div>
     </div>
-    <div class="form-check mb-3">
-      <input class="form-check-input" type="checkbox" id="qr_check">
-      <label class="form-check-label" for="qr_check">Print text as QR code</label>
+    <div class="mb-3">
+      <label class="form-label">Barcode Type</label>
+      <select id="barcode_type" class="form-select w-auto">
+        <option value="">None</option>
+        <option value="qr">QR Code</option>
+        <option value="data_matrix">Data Matrix</option>
+        <option value="upc">UPC</option>
+      </select>
     </div>
     <div class="mb-3">
       <label class="form-label">Preview</label>
@@ -64,7 +69,7 @@
   const labelInput = document.getElementById('label_text');
   const fontSize = document.getElementById('font_size');
   const boldBtn = document.getElementById('bold_btn');
-  const qrCheck = document.getElementById('qr_check');
+  const barcodeType = document.getElementById('barcode_type');
 
   function updatePreview() {
     preview.innerHTML = labelInput.innerHTML;
@@ -85,7 +90,10 @@
 
   const socket = io();
   document.getElementById('print_btn').addEventListener('click', () => {
-    socket.emit('print_label', { text: labelInput.innerText, qr: qrCheck.checked });
+    socket.emit('print_label', {
+      text: labelInput.innerText,
+      barcode: barcodeType.value
+    });
   });
 
   window.addEventListener('DOMContentLoaded', () => {
