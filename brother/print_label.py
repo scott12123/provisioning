@@ -5,7 +5,6 @@ import os
 import logging
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
-from textwrap import wrap
 from typing import Optional
 from brother_ql import BrotherQLRaster, create_label
 from brother_ql.backends.helpers import send
@@ -29,7 +28,20 @@ def build_image(text: str, barcode: Optional[str]) -> Image.Image:
     draw = ImageDraw.Draw(img)
     font = ImageFont.truetype(FONT_PATH, 40)
 
-    text_area_width = 420
+    # Default layout dedicates most of the label width to text. Code128
+    # barcodes require more horizontal space to remain readable so the text
+    # area is reduced when that type is selected.
+    if barcode == 'code128':
+        barcode_width = int(img.width * 0.6)
+        barcode_x = img.width - barcode_width
+        max_height = int(img.height * 0.8)
+        text_area_width = barcode_x - 10
+        available_width = barcode_width
+    else:
+        text_area_width = 420
+        barcode_x = 430
+        max_height = img.height - 20
+        available_width = img.width - barcode_x
     lines = []
     for para in text.splitlines() or ['']:
         if not para:
@@ -56,10 +68,6 @@ def build_image(text: str, barcode: Optional[str]) -> Image.Image:
         draw.text((5, y), line, font=font, fill=0)
         y += line_height
 
-    max_height = img.height - 20
-    barcode_x = 430
-    available_width = img.width - barcode_x
-
     if barcode == 'qr':
         size = min(max_height, available_width)
         qr_img = qrcode.make(text)
@@ -76,21 +84,22 @@ def build_image(text: str, barcode: Optional[str]) -> Image.Image:
     elif barcode == 'code128':
         bc_cls = get_barcode_class('code128')
         bc = bc_cls(text, writer=ImageWriter())
-        bc_img = bc.render(writer_options={'module_height': max_height})
-        if bc_img.width > available_width:
-            ratio = available_width / bc_img.width
-            new_width = available_width
-            new_height = int(bc_img.height * ratio)
-        else:
-            new_width = bc_img.width
-            new_height = bc_img.height
-        if new_height > max_height:
-            ratio = max_height / new_height
-            new_width = int(new_width * ratio)
-            new_height = max_height
+        bar_font = ImageFont.truetype(FONT_PATH, 20)
+        text_h = bar_font.getbbox('Ag')[3] - bar_font.getbbox('Ag')[1]
+        bar_height = max_height - text_h - 2
+        bc_img = bc.render(writer_options={'module_height': bar_height,
+                                           'write_text': False})
+        ratio = min(available_width / bc_img.width,
+                    bar_height / bc_img.height)
+        new_width = int(bc_img.width * ratio)
+        new_height = int(bc_img.height * ratio)
         bc_img = bc_img.resize((new_width, new_height), Image.LANCZOS).convert('L')
-        img.paste(bc_img, (barcode_x + (available_width - new_width) // 2,
-                          (img.height - new_height) // 2))
+        bar_x = barcode_x + (available_width - new_width) // 2
+        bar_y = (img.height - (new_height + text_h)) // 2
+        img.paste(bc_img, (bar_x, bar_y))
+        text_w = draw.textlength(text, font=bar_font)
+        text_x = barcode_x + (available_width - text_w) // 2
+        draw.text((text_x, bar_y + new_height + 2), text, font=bar_font, fill=0)
 
     return img
 
