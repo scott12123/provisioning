@@ -62,6 +62,13 @@
       <div id="preview"></div>
     </div>
     <button id="print_btn" class="btn btn-primary">Print</button>
+    <div class="mt-3">
+      <button class="btn btn-secondary mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#outputCollapse" aria-expanded="false" aria-controls="outputCollapse">Toggle Output</button>
+      <div id="status_line" class="fw-bold mb-2"></div>
+      <div class="collapse" id="outputCollapse">
+        <pre id="output" class="bg-dark text-white p-3" style="height: 200px; overflow-y: auto;"></pre>
+      </div>
+    </div>
   </div>
 </div>
 <script>
@@ -89,15 +96,52 @@
   });
 
   const socket = io();
-  document.getElementById('print_btn').addEventListener('click', () => {
+  const outputEl = document.getElementById('output');
+  const statusEl = document.getElementById('status_line');
+  const printBtn = document.getElementById('print_btn');
+  let running = false;
+
+  printBtn.addEventListener('click', () => {
+    if (running) {
+      socket.emit('stop_script');
+      return;
+    }
+    outputEl.textContent = '';
+    statusEl.textContent = '';
     socket.emit('print_label', {
       text: labelInput.innerText,
       barcode: barcodeType.value
     });
+    printBtn.textContent = 'Stop';
+    printBtn.classList.remove('btn-primary');
+    printBtn.classList.add('btn-danger');
+    running = true;
+  });
+
+  socket.on('output', line => {
+    outputEl.textContent += line;
+    outputEl.scrollTop = outputEl.scrollHeight;
+    const trimmed = line.trim();
+    if (trimmed) {
+      statusEl.textContent = trimmed;
+    }
+  });
+
+  socket.on('finished', data => {
+    const msg = '\nProcess exited with ' + data.returncode;
+    outputEl.textContent += msg;
+    outputEl.scrollTop = outputEl.scrollHeight;
+    statusEl.textContent = msg.trim();
+    printBtn.textContent = 'Print';
+    printBtn.classList.remove('btn-danger');
+    printBtn.classList.add('btn-primary');
+    running = false;
   });
 
   window.addEventListener('DOMContentLoaded', () => {
     fontSize.dispatchEvent(new Event('change'));
+    outputEl.textContent = '';
+    statusEl.textContent = '';
   });
 </script>
 </body>
