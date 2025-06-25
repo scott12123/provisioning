@@ -64,7 +64,7 @@ def build_image(text: str, barcode: Optional[str]) -> Image.Image:
     else:
         # Reserve most of the label for the barcode and its text
         max_height = int(img.height * 0.8)
-        available_width = int(img.width * 0.7)
+        available_width = int(img.width * 0.6)
         barcode_x = (img.width - available_width) // 2
 
     if barcode == 'qr':
@@ -85,20 +85,40 @@ def build_image(text: str, barcode: Optional[str]) -> Image.Image:
         bc = bc_cls(text, writer=ImageWriter())
         bar_font = ImageFont.truetype(FONT_PATH, 20)
         text_h = bar_font.getbbox('Ag')[3] - bar_font.getbbox('Ag')[1]
+
+        # Use the label height and width targets for the barcode.  We
+        # determine an appropriate ``module_width`` by rendering the barcode
+        # once with a width of 1 pixel and scaling the resulting width.
         bar_height = int(img.height * 0.8)
-        max_width = int(img.width * 0.7)
-        bc_img = bc.render(writer_options={'module_height': bar_height,
-                                           'write_text': False})
-        ratio = min(max_width / bc_img.width, bar_height / bc_img.height)
-        new_width = int(bc_img.width * ratio)
-        new_height = int(bc_img.height * ratio)
-        bc_img = bc_img.resize((new_width, new_height), Image.LANCZOS).convert('L')
-        bar_x = (img.width - new_width) // 2
-        bar_y = (img.height - new_height - text_h) // 2
+        target_width = int(img.width * 0.6)
+
+        tmp_img = bc.render(
+            writer_options={
+                'module_width': 1,
+                'module_height': bar_height,
+                'write_text': False,
+            }
+        )
+        if tmp_img.width == 0:
+            module_width = 1
+        else:
+            module_width = target_width / tmp_img.width
+
+        bc_img = bc.render(
+            writer_options={
+                'module_width': module_width,
+                'module_height': bar_height,
+                'write_text': False,
+            }
+        ).convert('L')
+
+        bar_x = (img.width - bc_img.width) // 2
+        bar_y = (img.height - bc_img.height - text_h) // 2
         img.paste(bc_img, (bar_x, bar_y))
+
         text_w = draw.textlength(text, font=bar_font)
         text_x = (img.width - text_w) // 2
-        draw.text((text_x, bar_y + new_height + 2), text, font=bar_font, fill=0)
+        draw.text((text_x, bar_y + bc_img.height + 2), text, font=bar_font, fill=0)
         return img
 
     return img
