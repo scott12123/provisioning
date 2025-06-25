@@ -13,7 +13,8 @@ logging.basicConfig(level=logging.ERROR)
 
 DEFAULT_MODEL = os.environ.get('BROTHER_QL_MODEL', 'QL-700')
 DEFAULT_ADDRESS = os.environ.get('BROTHER_QL_PRINTER', 'usb://04f9:2042')
-FONT_PATH = os.path.join(os.path.dirname(__file__), 'brother', 'Roboto-Regular.ttf')
+# Font file lives in the same directory as this script after moving
+FONT_PATH = os.path.join(os.path.dirname(__file__), 'Roboto-Regular.ttf')
 LABEL_TYPE = '17x54'
 
 
