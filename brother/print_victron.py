@@ -33,7 +33,7 @@ def print_label(mac):
 
     qr = qrcode.QRCode(version=1,
     	error_correction=qrcode.constants.ERROR_CORRECT_L,
-    	box_size=4,
+    	box_size=6,
     	border=1,
     )
     qr.add_data(mac)
@@ -57,7 +57,7 @@ def print_label(mac):
     draw.text(text_position_line1, line1, font=font, fill=0)
     draw.text(text_position_line2, line2, font=font, fill=0)
     draw.text(text_position_line3, line3, font=font, fill=0)
-    qr_position = (450, 60)
+    qr_position = (430, 50)
     img.paste(qr_img, qr_position)
     # Save image to a BytesIO object
     img_bytes = BytesIO()
