@@ -29,35 +29,33 @@ def build_image(text: str, barcode: Optional[str]) -> Image.Image:
     font = ImageFont.truetype(FONT_PATH, 40)
     draw.text((5, 60), text, font=font, fill=0)
 
+    max_height = img.height - 20
+
     if barcode == 'qr':
-        qr_img = qrcode.make(text).resize((120, 120))
-        img.paste(qr_img, (430, 20))
+        qr_img = qrcode.make(text)
+        qr_img = qr_img.resize((max_height, max_height))
+        img.paste(qr_img, (430, (img.height - qr_img.height) // 2))
     elif barcode == 'data_matrix':
         encoder = DataMatrixEncoder(text)
         dm_img = Image.open(BytesIO(encoder.get_imagedata()))
-        dm_img = dm_img.resize((120, 120))
-        img.paste(dm_img, (430, 20))
-    elif barcode == 'upc':
-        upc_cls = get_barcode_class('upc')
-        upc = upc_cls(text, writer=ImageWriter())
-        
-        upc_img = upc.render(writer_options={'module_height': 50})
+        dm_img = dm_img.resize((max_height, max_height))
+        img.paste(dm_img, (430, (img.height - dm_img.height) // 2))
+    elif barcode == 'code128':
+        bc_cls = get_barcode_class('code128')
+        bc = bc_cls(text, writer=ImageWriter())
+        bc_img = bc.render(writer_options={'module_height': max_height})
+        ratio = max_height / bc_img.height
+        width = int(bc_img.width * ratio)
+        bc_img = bc_img.resize((width, max_height), Image.ANTIALIAS).convert('L')
+        img.paste(bc_img, (430, (img.height - max_height) // 2))
 
-        # Get original dimensions
-        width, height = upc_img.size
-
-        # Double the size
-        upc_img = upc_img.resize((width * 2, height * 2), Image.ANTIALIAS)
-
-        # Adjust paste position if needed
-        img.paste(upc_img, (430, 20))
-        return img
+    return img
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Print a text label")
     parser.add_argument('--text', required=True, help='Text to print')
-    parser.add_argument('--barcode', choices=['qr', 'data_matrix', 'upc'], help='Barcode type to include')
+    parser.add_argument('--barcode', choices=['qr', 'data_matrix', 'code128'], help='Barcode type to include')
     parser.add_argument('--qr', action='store_true', help=argparse.SUPPRESS)
     args = parser.parse_args()
 
