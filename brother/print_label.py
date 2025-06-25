@@ -40,7 +40,7 @@ def build_image(text: str, barcode: str | None) -> Image.Image:
         upc_cls = get_barcode_class('upc')
         upc = upc_cls(text, writer=ImageWriter())
         upc_img = upc.render(writer_options={'module_height': 50})
-        upc_img = upc_img.resize((120, 60))
+        upc_img = upc_img.resize((240, 120))
         img.paste(upc_img, (430, 50))
     return img
 
