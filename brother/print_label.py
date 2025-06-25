@@ -5,6 +5,7 @@ import os
 import logging
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
+from typing import Optional
 from brother_ql import BrotherQLRaster, create_label
 from brother_ql.backends.helpers import send
 import qrcode
@@ -21,7 +22,7 @@ FONT_PATH = os.path.join(os.path.dirname(__file__), 'Roboto-Regular.ttf')
 LABEL_TYPE = '17x54'
 
 
-def build_image(text: str, barcode: str | None) -> Image.Image:
+def build_image(text: str, barcode: Optional[str]) -> Image.Image:
     """Generate label image with optional barcode."""
     img = Image.new('L', (566, 165), color=255)
     draw = ImageDraw.Draw(img)
