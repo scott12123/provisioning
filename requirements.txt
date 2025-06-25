@@ -1,2 +1,5 @@
 Flask
 Flask-SocketIO
+Pillow
+brother_ql
+qrcode
