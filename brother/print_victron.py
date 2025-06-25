@@ -20,9 +20,9 @@ mac_address = sys.argv[1]
 logging.basicConfig(level=logging.ERROR)
 
 def print_label(mac):
-  try:  # Define printer and label type
+  try:
     printer = BrotherQLRaster('QL-700')
-    label_type = '17x54'  # Update this if you have a different label type
+    label_type = '17x54'
     type = 'device'
 
     if type == 'device':
@@ -41,16 +41,13 @@ def print_label(mac):
 
     qr_img = qr.make_image(fill_color="black", back_color="white")
 
-    # Create an image from the text
-    img = Image.new('L', (566, 165), color=255)  # Note the swapped dimensions for landscape
+    img = Image.new('L', (566, 165), color=255)
     draw = ImageDraw.Draw(img)
 
-    # Use a TrueType font
     font_path = '/home/pi/provisioningpi/brother/Roboto-Regular.ttf'
     font_size = 40
     font = ImageFont.truetype(font_path, font_size)
     mac_font = ImageFont.truetype(font_path, 35)
-    # Calculate text position and rotation for landscape
     text_position_line1 = (5, 5)
     text_position_line2 = (5, 40)
     text_position_line3 = (5, 80)
@@ -59,15 +56,11 @@ def print_label(mac):
     draw.text(text_position_line3, line3, font=font, fill=0)
     qr_position = (435, 30)
     img.paste(qr_img, qr_position)
-    # Save image to a BytesIO object
     img_bytes = BytesIO()
     img.save(img_bytes, format='PNG')
     img_bytes.seek(0)
-
-    # Create label from the image
     create_label(printer, img_bytes, label_type, cut=True)
 
-    # Send to printer with the correct printer address
     printer_address = 'usb://04f9:2042'
     send(printer.data, printer_address)
   except Exception as e:
@@ -75,5 +68,4 @@ def print_label(mac):
         print("Please ensure that the printer is on and connected to the raspberry pi.")
 
 print("Printing sticker")
-#mac = input("Enter above MAC Address: ")
 print_label(mac_address)

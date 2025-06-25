@@ -17,7 +17,6 @@ logging.basicConfig(level=logging.ERROR)
 
 DEFAULT_MODEL = os.environ.get('BROTHER_QL_MODEL', 'QL-700')
 DEFAULT_ADDRESS = os.environ.get('BROTHER_QL_PRINTER', 'usb://04f9:2042')
-# Font file lives in the same directory as this script after moving
 FONT_PATH = os.path.join(os.path.dirname(__file__), 'Roboto-Regular.ttf')
 LABEL_TYPE = '17x54'
 
@@ -28,9 +27,6 @@ def build_image(text: str, barcode: Optional[str]) -> Image.Image:
     draw = ImageDraw.Draw(img)
     font = ImageFont.truetype(FONT_PATH, 40)
 
-    # Code128 labels dedicate the entire width to the barcode so no text is
-    # drawn on the left. For all other cases the text is wrapped into a column
-    # and drawn before rendering the barcode.
     if barcode != 'code128':
         text_area_width = 420
         barcode_x = 430
@@ -62,7 +58,6 @@ def build_image(text: str, barcode: Optional[str]) -> Image.Image:
             draw.text((5, y), line, font=font, fill=0)
             y += line_height
     else:
-        # Reserve most of the label for the barcode and its text
         max_height = int(img.height * 0.8)
         available_width = int(img.width * 0.6)
         barcode_x = (img.width - available_width) // 2
@@ -86,9 +81,6 @@ def build_image(text: str, barcode: Optional[str]) -> Image.Image:
         bar_font = ImageFont.truetype(FONT_PATH, 20)
         text_h = bar_font.getbbox('Ag')[3] - bar_font.getbbox('Ag')[1]
 
-        # Use the label height and width targets for the barcode.  We
-        # determine an appropriate ``module_width`` by rendering the barcode
-        # once with a width of 1 pixel and scaling the resulting width.
         bar_height = int(img.height * 0.8)
         target_width = int(img.width * 0.6)
 
@@ -116,9 +108,6 @@ def build_image(text: str, barcode: Optional[str]) -> Image.Image:
         text_w = draw.textlength(text, font=bar_font)
         text_x = (img.width - text_w) // 2
 
-        # Position the barcode so the accompanying text sits at the bottom
-        # of the label.  A small 2px gap is kept between the barcode and the
-        # text for readability.
         text_y = img.height - text_h - 2
         bar_y = text_y - bc_img.height
         img.paste(bc_img, (bar_x, bar_y))
