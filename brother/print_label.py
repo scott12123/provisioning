@@ -28,45 +28,44 @@ def build_image(text: str, barcode: Optional[str]) -> Image.Image:
     draw = ImageDraw.Draw(img)
     font = ImageFont.truetype(FONT_PATH, 40)
 
-    # Default layout dedicates most of the label width to text. Code128
-    # barcodes require more horizontal space to remain readable so the text
-    # area is reduced when that type is selected.
-    if barcode == 'code128':
-        barcode_width = int(img.width * 0.6)
-        barcode_x = img.width - barcode_width
-        max_height = int(img.height * 0.8)
-        text_area_width = barcode_x - 10
-        available_width = barcode_width
-    else:
+    # Code128 labels dedicate the entire width to the barcode so no text is
+    # drawn on the left. For all other cases the text is wrapped into a column
+    # and drawn before rendering the barcode.
+    if barcode != 'code128':
         text_area_width = 420
         barcode_x = 430
         max_height = img.height - 20
         available_width = img.width - barcode_x
-    lines = []
-    for para in text.splitlines() or ['']:
-        if not para:
-            lines.append('')
-            continue
-        words = para.split()
-        if not words:
-            lines.append('')
-            continue
-        cur = words[0]
-        for word in words[1:]:
-            test = f"{cur} {word}"
-            if draw.textlength(test, font=font) <= text_area_width:
-                cur = test
-            else:
-                lines.append(cur)
-                cur = word
-        lines.append(cur)
+        lines = []
+        for para in text.splitlines() or ['']:
+            if not para:
+                lines.append('')
+                continue
+            words = para.split()
+            if not words:
+                lines.append('')
+                continue
+            cur = words[0]
+            for word in words[1:]:
+                test = f"{cur} {word}"
+                if draw.textlength(test, font=font) <= text_area_width:
+                    cur = test
+                else:
+                    lines.append(cur)
+                    cur = word
+            lines.append(cur)
 
-    line_height = font.getbbox('Ag')[3] - font.getbbox('Ag')[1]
-    total_height = line_height * len(lines)
-    y = (img.height - total_height) // 2
-    for line in lines:
-        draw.text((5, y), line, font=font, fill=0)
-        y += line_height
+        line_height = font.getbbox('Ag')[3] - font.getbbox('Ag')[1]
+        total_height = line_height * len(lines)
+        y = (img.height - total_height) // 2
+        for line in lines:
+            draw.text((5, y), line, font=font, fill=0)
+            y += line_height
+    else:
+        # Reserve most of the label for the barcode and its text
+        max_height = int(img.height * 0.8)
+        available_width = int(img.width * 0.7)
+        barcode_x = (img.width - available_width) // 2
 
     if barcode == 'qr':
         size = min(max_height, available_width)
@@ -86,20 +85,21 @@ def build_image(text: str, barcode: Optional[str]) -> Image.Image:
         bc = bc_cls(text, writer=ImageWriter())
         bar_font = ImageFont.truetype(FONT_PATH, 20)
         text_h = bar_font.getbbox('Ag')[3] - bar_font.getbbox('Ag')[1]
-        bar_height = max_height - text_h - 2
+        bar_height = int(img.height * 0.8)
+        max_width = int(img.width * 0.7)
         bc_img = bc.render(writer_options={'module_height': bar_height,
                                            'write_text': False})
-        ratio = min(available_width / bc_img.width,
-                    bar_height / bc_img.height)
+        ratio = min(max_width / bc_img.width, bar_height / bc_img.height)
         new_width = int(bc_img.width * ratio)
         new_height = int(bc_img.height * ratio)
         bc_img = bc_img.resize((new_width, new_height), Image.LANCZOS).convert('L')
-        bar_x = barcode_x + (available_width - new_width) // 2
-        bar_y = (img.height - (new_height + text_h)) // 2
+        bar_x = (img.width - new_width) // 2
+        bar_y = (img.height - new_height - text_h) // 2
         img.paste(bc_img, (bar_x, bar_y))
         text_w = draw.textlength(text, font=bar_font)
-        text_x = barcode_x + (available_width - text_w) // 2
+        text_x = (img.width - text_w) // 2
         draw.text((text_x, bar_y + new_height + 2), text, font=bar_font, fill=0)
+        return img
 
     return img
 
