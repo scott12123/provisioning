@@ -8,6 +8,14 @@ from brother_ql.backends.helpers import send
 from io import BytesIO
 import qrcode
 
+import sys
+
+if len(sys.argv) != 2:
+    print("Usage: print_victron.py <MAC>")
+    exit(1)
+
+mac_address = sys.argv[1]
+
 # Silence all the warnings so they dont print to console..
 logging.basicConfig(level=logging.ERROR)
 
@@ -64,5 +72,5 @@ def print_label(mac):
         print("Please ensure that the printer is on and connected to the raspberry pi.")
 
 print("Printing sticker")
-mac = input("Enter above MAC Address: ")
-print_label(mac)
+#mac = input("Enter above MAC Address: ")
+print_label(mac_address)

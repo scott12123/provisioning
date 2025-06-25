@@ -36,12 +36,12 @@ except subprocess.CalledProcessError as e:
 subprocess.run(["esptool.py", "--chip", "esp32s3", "--port", "/dev/ttyACM0", "write_flash", "-z", "0x0", "victron/telemetry_v1.2.bin"], check=True)
 
 # Optional file listing
-subprocess.run(["ls"], check=True)
+#subprocess.run(["ls"], check=True)
 
 # Handle label printing
 if args.print_label and mac_address:
     print(f"We fetch the MAC: {mac_address}")
-    subprocess.run(["python3", "/home/pi/apn/brother/print_victron.py", mac_address], check=True)
+    subprocess.run(["python3", "brother/print_victron.py", mac_address], check=True)
     print("END")
 else:
     print("We don't print labels")
