@@ -34,7 +34,7 @@
       "csv_format": "CommunityName,DeviceName,IP",
       "rcp": {
         "AP Remote": ["cambium/rcp/f300-25-ap-remote.py"],
-        "AP Remote Spare": ["cambium/rcp/f300-25-ap-remote.py","Community,GEN_300-25_EXTxxxx_IP_x_x,10.255.0.216"]
+        "AP Remote Spare": ["cambium/rcp/f300-25-ap-remote.py","Community, GEN_300-25_EXTxxxx_IP_x_x, 10.255.0.216"]
       }
     }
   }
