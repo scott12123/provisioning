@@ -14,25 +14,31 @@
   "Cambium": {
     "XV2-22H": {
       "csv_format": "Community,IP",
-      "rcp": {
+      "RCP": {
         "Standard": ["cambium/rcp/xv2-22h.py"],
         "Spare": ["cambium/rcp/xv2-22h.py","Generic_XV2-22H_APX_IPX_X, 10.255.0.212"]
-      }
+      },
+      "Universal": {
+        "Spare": ["cambium/universal/xv2-22h.py","SPARE_XV2-2T0, 10.255.0.212"]
+      }      
     },
     "XV2-2T0": {
       "csv_format": "Device_Name,IP",
-      "nbn": {
+      "NBN": {
         "Standard": ["cambium/nbn/xv2-2t0.py"],
         "Spare": ["cambium/nbn/xv2-2t0.py","Generic_XV2_APX_IPX_X, 10.255.0.213"]
       },
-      "rcp": {
+      "RCP": {
         "Standard": ["cambium/rcp/xv2-2t0.py"],
         "Spare": ["cambium/rcp/xv2-2t0.py","Generic_XV2_APX_IPX_X, 10.255.0.213"]
+      },
+      "Universal": {
+        "Spare": ["cambium/universal/xv2-2t0.py","SPARE_XV2-2T0, 10.255.0.213"]
       }
     },
     "Force300-25": {
       "csv_format": "CommunityName,DeviceName,IP",
-      "rcp": {
+      "RCP": {
         "AP Remote": ["cambium/rcp/f300-25-ap-remote.py"],
         "AP Remote Spare": ["cambium/rcp/f300-25-ap-remote.py","Community, GEN_300-25_EXTxxxx_IP_x_x, 10.255.0.216"]
       }
