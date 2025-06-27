@@ -282,7 +282,7 @@ time.sleep(5)
 #Print labels for the devices
 current_date = datetime.now()
 date = current_date.strftime("%d/%m/%Y")
-print(Fore.GREEN + "Printing label for XV2 radio")
+print(Fore.GREEN + "Printing label for F300 radio")
 print_v1.pass_label(device_name,ip_address,f"PASS {date}")
 print_v1.pass_label(device_name,ip_address,f"PASS {date}")
 
