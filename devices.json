@@ -36,7 +36,13 @@
         "Spare": ["cambium/universal/xv2-2t0.py","SPARE_XV2-2T0, 10.255.0.213"]
       }
     },
-    "Force300-25": {
+    "Force300-16": {
+      "csv_format": "CommunityName,DeviceName,IP",
+      "Universal": {
+        "Spare AP Remote": ["cambium/universal/f300-16-ap-remote.py","Community, SPARE_300-16_0_215, 10.255.0.215"]
+      }
+    },
+      "Force300-25": {
       "csv_format": "CommunityName,DeviceName,IP",
       "RCP": {
         "AP Remote": ["cambium/rcp/f300-25-ap-remote.py"],
