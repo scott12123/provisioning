@@ -354,5 +354,16 @@ def stop_script():
             pass
 
 
+@app.route('/update', methods=['POST'])
+def update():
+    """Pull latest code and restart the service."""
+    try:
+        subprocess.check_call(['git', 'pull', 'origin', 'main'])
+        subprocess.check_call(['sudo', 'systemctl', 'restart', 'provisioning.service'])
+        return {'status': 'ok'}
+    except subprocess.CalledProcessError as exc:
+        return {'status': 'error', 'returncode': exc.returncode}, 500
+
+
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)
