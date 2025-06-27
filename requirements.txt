@@ -5,3 +5,4 @@ brother_ql
 qrcode
 python-barcode
 pystrich
+requests

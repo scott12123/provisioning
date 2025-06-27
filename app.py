@@ -9,6 +9,8 @@ import subprocess
 from datetime import datetime
 from threading import Event
 import shlex
+import requests
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
@@ -20,6 +22,37 @@ LOG_FILE = os.path.join(os.path.dirname(__file__), 'configured.json')
 # Track running processes by Socket.IO session ID
 RUNNING = {}
 
+def get_current_version():
+    try:
+        tag = subprocess.check_output(["git", "describe", "--tags", "--abbrev=0"]).decode().strip()
+    except subprocess.CalledProcessError:
+        tag = "v0.0.0"
+    try:
+        commit = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]).decode().strip()
+    except subprocess.CalledProcessError:
+        commit = "unknown"
+    return f"{tag} ({commit})"
+
+def get_available_version():
+    try:
+        # Example: Pull latest tag from GitHub releases
+        resp = requests.get("https://api.github.com/repos/scott12123/provisioning/releases/latest", timeout=5)
+        if resp.status_code == 200:
+            latest_tag = resp.json()["tag_name"]
+            return latest_tag
+    except Exception:
+        pass
+    return "unknown"
+
+current_version = get_current_version()
+available_version = get_available_version()
+
+@app.context_processor
+def inject_versions():
+    return dict(
+        app_version=current_version,
+        available_version=available_version
+    )
 
 def get_devices():
     """Load the device definition structure."""

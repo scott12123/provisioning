@@ -33,7 +33,11 @@
             <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#updateModal">Update</a></li>
           </ul>
         </li>
+        <li class="nav-item">
+          <a class="nav-link ">{{ app_version }}</a>
+        </li>
       </ul>
+
       </div>
     </div>
   </nav>
@@ -47,7 +51,12 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        Are you sure you want to update?
+        Are you sure you want to update?<br>
+        Current Version: {{ app_version }}
+        {% if available_version != "unknown" and available_version not in app_version %}
+          <br>
+          <span style="color: orange;">Update Available: {{ available_version }}</span>
+        {% endif %}
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
