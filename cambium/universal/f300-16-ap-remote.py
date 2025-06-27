@@ -116,18 +116,18 @@ macsnmpd = os.popen('snmpget -v 2c -c publicreadonly 192.168.0.2 .1.3.6.1.4.1.17
 macsnmp = macsnmpd.read()
 mac_address = re.findall(r'"(.*?)"', macsnmp)[0]
 
-community_name = "NBN_SPARE"
-device_name = "NBN_SPARE_F30016_0_215"
-ip_address = "10.255.0.215"
+#community_name = "NBN_SPARE"
+#device_name = "NBN_SPARE_F30016_0_215"
+#ip_address = "10.255.0.215"
 
 #Create config file from base template
 config_pi_ip = '192.168.0.50'
 pi_username = 'pi'
 pi_password = 'raspberry'
 current_time = int(time.time())
-source = '/mnt/usbstick/nbn/nbn-Generic-Force300-16-IP-10.255.0.215-v2.0.json'
-dest = f"/mnt/usbstick/nbn/{device_name}-{ip_address}_{current_time}.txt"
-command = f"sudo cp {source} {dest} && sudo sed -i 's/10.255.0.215/{ip_address}/g' {dest} && sudo sed -i 's/GEN_300-16_EXTxxxx_IP_x_x/{device_name}/g' {dest} && sudo sed -i 's/SNMP_Sitename/{community_name}/g' {dest}"
+source = '/mnt/usbstick/templates/RCP3-Generic-Force300-16-IP-10.255.0.215-v2.0.json'
+dest = f"/mnt/usbstick/universal/universal_F30016_{current_time}.txt"
+command = f"sudo cp {source} {dest} && sudo sed -i 's/SNMP-RO-ACT1v8me/CdZbUUcp3f/g' {dest} && sudo sed -i 's/SNMP-RW-ACT1v8me/cNmpF9wusE/g' {dest} && sudo sed -i 's/GEN_300-16_EXTxxxx_IP_x_x/{device_name}/g' {dest} && sudo sed -i 's/SNMP_Sitename/{community_name}/g' {dest}"
 index = dest.find("usbstick/")
 dest_config = dest[index + len("usbstick/"):]
 custom_config = f"http://192.168.0.50/{dest_config}"
