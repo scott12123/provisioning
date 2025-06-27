@@ -31,8 +31,6 @@ except subprocess.CalledProcessError as e:
 # Flash tinyS3
 subprocess.run(["esptool.py", "--chip", "esp32s3", "--port", "/dev/ttyACM0", "write_flash", "-z", "0x0", "victron/telemetry_v1.2.bin"], check=True)
 
-
-
 # Print label if ticked otherwise finished.
 if args.print_label and mac_address:
     subprocess.run(["python3", "brother/print_victron.py", mac_address], check=True)
