@@ -19,7 +19,7 @@
         "Spare": ["cambium/rcp/xv2-22h.py","Generic_XV2-22H_APX_IPX_X, 10.255.0.212"]
       },
       "Universal": {
-        "Spare": ["cambium/universal/xv2-22h.py","SPARE_XV2-2T0, 10.255.0.212"]
+        "Spare": ["cambium/universal/xv2-22h.py","SPARE_XV2-22H, 10.255.0.212"]
       }      
     },
     "XV2-2T0": {
