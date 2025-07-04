@@ -116,7 +116,7 @@ while True:
         
         #Update firmware
         #print("Updating firmware")
-        first_command = 'upgrade http://192.168.0.50/firmware/xv222h_xv221x_xv223t--6.6.0.3-r9.cimg verbose'
+        first_command = 'upgrade http://192.168.0.50/firmware/xv222h_xv221x_xv223t-6.6.0.3-r9.cimg verbose'
         handle_prompts(conn, first_command)
 
         # Update config
