@@ -47,6 +47,9 @@
       "RCP": {
         "AP Remote": ["cambium/rcp/f300-25-ap-remote.py"],
         "AP Remote Spare": ["cambium/rcp/f300-25-ap-remote.py","Community, GEN_300-25_EXTxxxx_IP_x_x, 10.255.0.216"]
+      },
+      "Universal": {
+        "Spare AP Remote": ["cambium/universal/f300-25-ap-remote.py","Community, SPARE_300-25_0_216, 10.255.0.216"]
       }
     }
   }
