@@ -318,6 +318,7 @@ while attempt_count < 15:
 if attempt_count == 15 and returncode != 0:
     smc_ping = "Fail"
 
+print("Configuration complete")
 functions.log(f"Configuration completed for {device_name}","INFO")
 
 #Finished
